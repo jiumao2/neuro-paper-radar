@@ -68,10 +68,11 @@ class Client:
                 result = json.loads(body)
                 if not isinstance(result, dict):
                     raise SourceError("Unexpected API response shape")
+                result["_retrieved_at"] = datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
                 return result
             except urllib.error.HTTPError as error:
                 if error.code == 404:
-                    return {"_not_found": True}
+                    return {"_not_found": True, "_retrieved_at": datetime.now(timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")}
                 if error.code not in {429, 500, 502, 503, 504}:
                     raise SourceError(f"Official API returned HTTP {error.code}") from error
                 delay = retry_delay(error.headers.get("Retry-After"), attempt)

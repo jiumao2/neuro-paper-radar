@@ -56,6 +56,7 @@ def collect_biorxiv(client, start, end, state, stamp, report):
             raise SourceError("Repeated bioRxiv page; pagination stopped")
         seen_pages.add(signature)
         report["rows"] += len(rows)
+        retrieved_at = data.get("_retrieved_at", stamp)
         for row in rows:
             identifier = doi(row.get("doi"))
             if not identifier or row.get("category") != "neuroscience" or row.get("server", "biorxiv").lower() != "biorxiv":
@@ -65,7 +66,7 @@ def collect_biorxiv(client, start, end, state, stamp, report):
                 continue
             entry = state["preprints"].setdefault(identifier, {"versions": {}, "observed_at": stamp})
             entry["versions"][version] = safe_bio(row)
-            entry["observed_at"] = stamp
+            entry["observed_at"] = retrieved_at
             changed.add(identifier)
         cursor += len(rows)  # Use the actual page size, not an assumed 30/100.
         total = message.get("total")
@@ -77,6 +78,7 @@ def collect_biorxiv(client, start, end, state, stamp, report):
     missing_v1 = [d for d in sorted(changed) if "1" not in state["preprints"][d]["versions"]]
     for identifier in missing_v1[:150]:
         data = client.get(f"https://api.biorxiv.org/details/biorxiv/{identifier}")
+        state["preprints"][identifier]["observed_at"] = data.get("_retrieved_at", stamp)
         for row in data.get("collection", []):
             version = str(row.get("version", ""))
             if doi(row.get("doi")) == identifier and row.get("category") == "neuroscience" and version.isdigit():
@@ -105,7 +107,7 @@ def collect_crossref(client, journal, start, end, state, stamp, report):
         seen.add(signature)
         report["rows"] += len(rows)
         for row in rows:
-            paper = crossref_paper(row, journal, stamp)
+            paper = crossref_paper(row, journal, data.get("_retrieved_at", stamp))
             if paper:
                 state["published"][paper["id"]] = paper
             else:
@@ -143,7 +145,7 @@ def refresh_openalex(client, identifiers, cache, stamp, report):
         for row in rows:
             identifier = doi(row.get("doi"))
             if identifier:
-                normalized = normalize_work(row, stamp)
+                normalized = normalize_work(row, result.get("_retrieved_at", stamp))
                 for alias in aliases.get(identifier, [identifier]):
                     cache[alias] = copy.deepcopy(normalized)
                 found.add(identifier)
@@ -166,11 +168,11 @@ def refresh_openalex(client, identifiers, cache, stamp, report):
         result = client.get("https://api.openalex.org/works/https://doi.org/" + identifier +
                             "?select=id,doi,cited_by_count,topics,keywords")
         if not result.get("_not_found"):
-            cache[identifier] = normalize_work(result, stamp)
+            cache[identifier] = normalize_work(result, result.get("_retrieved_at", stamp))
         cache[identifier]["alias_checked"] = True
-        cache[identifier]["alias_checked_at"] = stamp
+        cache[identifier]["alias_checked_at"] = result.get("_retrieved_at", stamp)
         report["alias_lookups"] = report.get("alias_lookups", 0) + 1
-    report["unmatched"] = sum(cache.get(d, {}).get("_not_found", True) for d in identifiers)
+    report["unmatched"] = sum(cache.get(d, {"_not_found": True}).get("_not_found", False) for d in identifiers)
     report["aliases_deferred"] = max(0, len(missing) - 75)
 
 
@@ -272,15 +274,15 @@ def run(mode="auto", root=ROOT, client=None):
             full_success = previous.get("last_full_success")
             full_due = not full_success or date.fromisoformat(full_success[:10]).isocalendar()[:2] != today.isocalendar()[:2]
             source_start = year_start if mode in {"repair", "backfill"} or (repair and full_due) else (today - timedelta(days=8)).isoformat()
-            report = source_report(name, previous, stamp, source_start, end)
+            report = source_report(name, previous, stamp_now(), source_start, end)
             try:
                 if journal:
                     collect_crossref(client, journal, source_start, end, state, stamp, report)
                 else:
                     collect_biorxiv(client, source_start, end, state, stamp, report)
-                report["last_success"] = stamp
+                report["last_success"] = stamp_now()
                 if source_start == year_start:
-                    report["last_full_success"] = stamp
+                    report["last_full_success"] = report["last_success"]
             except (SourceError, ValueError) as error:
                 report["status"] = "partial" if report["rows"] else "failed"
                 report["errors"].append(str(error))
@@ -293,23 +295,25 @@ def run(mode="auto", root=ROOT, client=None):
     identifiers = sorted(set(state["published"]) | set(state["preprints"]))
     targets = [d for d in identifiers if d not in state["openalex"] or
                (citations and (sync_upgrade or mode in {"repair", "backfill", "citations"} or state["openalex"][d].get("checked_at", "")[:10] != end))]
-    report = source_report("openalex", state["sources"].get("openalex", {}), stamp, year_start, end)
+    report = source_report("openalex", state["sources"].get("openalex", {}), stamp_now(), year_start, end)
     report["requested_dois"] = len(targets)
     if targets:
         try:
             refresh_openalex(client, targets, state["openalex"], stamp, report)
-            report["last_success"] = stamp
+            report["last_success"] = stamp_now()
             if citations:
-                state["last_citations"] = stamp
+                state["last_citations"] = report["last_success"]
                 state["openalex_sync_version"] = 2
         except (SourceError, ValueError) as error:
             report["status"] = "partial" if report["rows"] else "failed"
             report["errors"].append(str(error))
         state["sources"]["openalex"] = report
     if repair and all(s["status"] == "ok" for s in state["sources"].values()):
-        state["last_repair"] = stamp
+        state["last_repair"] = stamp_now()
     state["openalex"] = {d: w for d, w in state["openalex"].items() if d in identifiers}
-    snapshot = make_snapshot(state, config, stamp, year_start, end)
+    if "openalex" in state["sources"]:
+        state["sources"]["openalex"]["unmatched"] = sum(state["openalex"].get(d, {"_not_found": True}).get("_not_found", False) for d in identifiers)
+    snapshot = make_snapshot(state, config, stamp_now(), year_start, end)
     validate_snapshot(snapshot, config)
     # State and public snapshot are written only after validation; prior content survives invalid refreshes.
     atomic_bytes(state_path, gzip.compress(json.dumps(state, ensure_ascii=False, separators=(",", ":")).encode(), mtime=0))

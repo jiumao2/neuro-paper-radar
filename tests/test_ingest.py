@@ -97,6 +97,7 @@ class RefreshTests(unittest.TestCase):
         self.assertEqual(cache[alias]['citations']['value'],8)
         self.assertEqual(cache[alias]['topics'][0]['name'],'New topic')
         self.assertEqual(cache[alias]['citations']['observed_at'],STAMP)
+        self.assertEqual(report['unmatched'],0)
 
     def test_singleton_404_is_retried_after_indexing_delay(self):
         identifier='10.64898/alias';cache={}
