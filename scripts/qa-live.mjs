@@ -12,6 +12,13 @@ try {
     const response=await page.goto(base,{waitUntil:'networkidle'});assert.equal(response.status(),200);
     const dataResponse=await context.request.get(new URL('data/papers.json',base).href);assert.equal(dataResponse.status(),200);
     const data=await dataResponse.json();assert.ok(data.coverage.total>0,'Actual production corpus is required');
+    let build=null;
+    if(base.startsWith('https:')){
+      const buildResponse=await context.request.get(new URL('build-info.json',base).href,{headers:{'Cache-Control':'no-cache'}});
+      assert.equal(buildResponse.status(),200);build=await buildResponse.json();
+      assert.match(build.commit,/^[a-f0-9]{40}$/);assert.equal(build.papers,data.coverage.total);
+      if(process.env.QA_EXPECTED_COMMIT)assert.equal(build.commit,process.env.QA_EXPECTED_COMMIT);
+    }
     await page.locator('#window').selectOption('1y');
     const preprintCount=data.papers.filter(p=>p.kind==='preprint').length;
     await expect(page.locator('.paper')).toHaveCount(Math.min(40,preprintCount),{timeout:30000});
@@ -43,7 +50,7 @@ try {
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
     assert.deepEqual(errors,[]);
     fs.mkdirSync('test-results',{recursive:true});await page.screenshot({path:`test-results/live-${name}.png`,fullPage:false});
-    evidence.push({device:name,http:response.status(),papers:data.coverage.total,preprints:data.coverage.preprints,published:data.coverage.published,data_generated_at:data.generated_at,journals:journalEvidence,console_errors:errors});
+    evidence.push({device:name,http:response.status(),build_commit:build?.commit,build_workflow_run:build?.workflow_run,papers:data.coverage.total,preprints:data.coverage.preprints,published:data.coverage.published,data_generated_at:data.generated_at,journals:journalEvidence,console_errors:errors});
     await context.close();
   }
   fs.writeFileSync('test-results/live-qa.json',JSON.stringify({url:base,checked_at:new Date().toISOString(),evidence},null,2)+'\n');

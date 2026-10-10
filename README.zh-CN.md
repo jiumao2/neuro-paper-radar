@@ -2,6 +2,8 @@
 
 [English](README.md) · [GNU GPL v3](LICENSE)
 
+**[打开 NeuroPaper Radar](https://jiumao2.github.io/neuro-paper-radar/)**
+
 发现神经科学预印本与已发表论文的开放、双语静态应用。架构受到 [biorxiv-top](https://github.com/RobertoDF/biorxiv-top) 的启发；本项目独立实现，未复制其代码或界面。
 
 使用 Python 数据采集、TypeScript 前端、GitHub Actions 和 GitHub Pages。生产元数据来自 bioRxiv、Crossref 和 OpenAlex 官方 API。初始期刊为 Nature、Nature Neuroscience、Nature Methods、Nature Communications 和 Journal of Neuroscience，以稳定的 ISSN 标识；综合性期刊保留神经科学分类依据。
@@ -49,3 +51,5 @@ GitHub Pages 的来源设为 **GitHub Actions**。[验证与部署](.github/work
 默认时间为 **过去 30 天**。今天使用 UTC 日历日期；过去 7/30 天包含当天与此前 6/29 天；月/年窗口按日历回退，并处理月底与闰年。筛选保留在 URL 中，中英文选择在本地持久保存。论文标题、作者与主题名称保留原文。
 
 分类规则、指标定义、许可与适配器要求见 [来源政策与限制](docs/SOURCES.md)，维护要求见 [AGENTS.md](AGENTS.md)。
+
+已发表列表按出版商登记的 `journal-article` 类型收录，可能包含更正、评论或编辑讨论，并非仅限原创研究论文。

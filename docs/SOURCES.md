@@ -33,6 +33,8 @@ OpenAlex counts describe one work and can merge preprint/publication versions. A
 
 ## Reliability and source rights
 
+In source diagnostics, `requested_dois` is the number of DOI candidates in the last lookup pass (including records later excluded from the visible corpus). `rows` counts API rows returned across requests and may include repeated canonical works and singleton alias results. `unmatched` is the final number of retained DOI candidates without a resolved OpenAlex work after enrichment, recalculated from the cache. `aliases_deferred` records unresolved alias lookups left in the bounded queue for that lookup pass; it is not a count of missing citations in the displayed corpus. Public corpus citation/topic coverage is computed separately from included records. A diagnostic counter bug that initially counted resolved works as unmatched was corrected with a regression check.
+
 Source requests are serial, bounded, and use an honest project user agent. Retry-After is respected: long waits are deferred rather than retried early. Restricted hosts are refused by the metadata client. Source failures retain last-good state and report partial coverage; validation failure leaves the prior public snapshot intact. The initial empty scaffold is never deployed.
 
 Only bioRxiv abstracts marked CC-BY, CC-BY-SA, or CC0 are redistributed, with paper authors, source links, and license attribution. Other abstracts link to the source. The original code license, GPL-3.0-only, does not extend to third-party metadata or literature. No full text or unlicensed publisher abstract is included. The browser uses no third-party analytics, fonts, or runtime API credentials.

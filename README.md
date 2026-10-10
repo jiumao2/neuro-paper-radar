@@ -2,6 +2,8 @@
 
 [中文说明](README.zh-CN.md) · [GNU GPL v3](LICENSE)
 
+**[Open NeuroPaper Radar](https://jiumao2.github.io/neuro-paper-radar/)**
+
 An open, bilingual radar for neuroscience preprints and published papers. Independently implemented, with inspiration from the static ingestion/ranking approach of [biorxiv-top](https://github.com/RobertoDF/biorxiv-top); no code or interface is copied from that project.
 
 The project uses Python ingestion, a TypeScript static frontend, GitHub Actions, and GitHub Pages. Production metadata comes from the official bioRxiv, Crossref, and OpenAlex APIs. Initial published journals are Nature, Nature Neuroscience, Nature Methods, Nature Communications, and Journal of Neuroscience, identified by stable ISSNs. Multidisciplinary journals require recorded neuroscience classification evidence.
@@ -53,3 +55,5 @@ Permissions are granular: ordinary verification reads repository content; only t
 Date windows default to **Past 30 days**. Today is a UTC calendar day; past 7/30 days include today and the preceding 6/29 days. Month/year windows use inclusive dates and calendar subtraction with end-of-month/leap-year clamping. Filters are preserved in the URL; the English/Chinese choice persists locally. Original titles and topic names are retained.
 
 See [source policies and limitations](docs/SOURCES.md) for classification, metrics, licensing, and permitted adapter requirements. Contributions must preserve these constraints; project instructions are in [AGENTS.md](AGENTS.md).
+
+The published feed includes publisher-classified `journal-article` records and can contain corrections, commentary, or editorial conversations. It is not restricted to original research articles.
