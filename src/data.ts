@@ -10,9 +10,21 @@ export function validSnapshot(value: unknown): value is Snapshot {
   const nullable = (v: unknown, test: (v:unknown)=>boolean) => v === null || test(v);
   const doi = (v: unknown) => text(v) && /^10\.\d{4,9}\/[^\s<>"#?]+$/i.test(v);
   const url = (v: unknown) => { try { if(!text(v)) return false;const u=new URL(v);return u.protocol==='https:' && !!u.hostname && !u.username && !u.password; } catch {return false;} };
-  const metric = (v: unknown) => object(v) && nullable(v.value,count) && nullable(v.source,text) && nullable(v.observed_at,timestamp)
+  const optional = (v:Record<string,unknown>,key:string,test:(v:unknown)=>boolean) => v[key] === undefined || v[key] === null || test(v[key]);
+  const commit = (v:unknown) => text(v) && /^[a-f0-9]{40}$/.test(v);
+  const metricBase = (v: unknown) => object(v) && nullable(v.value,count) && nullable(v.source,text) && nullable(v.observed_at,timestamp)
     && (v.value === null || (text(v.source) && !!v.source && timestamp(v.observed_at)))
     && (v.work_id === undefined || (text(v.work_id) && /^https:\/\/openalex\.org\/W\d+$/.test(v.work_id)));
+  const metric = (v:unknown) => object(v) && metricBase(v)
+    && ['scope','definition','provider','aggregation','attribution','version_scope','zero_caveat'].every(k=>optional(v,k,text))
+    && ['permission_url','source_url'].every(k=>optional(v,k,url)) && optional(v,'source_commit',commit)
+    && ['fulltext','pdf'].every(k=>optional(v,k,count)) && optional(v,'upstream_fetched_date',day)
+    && ['upstream_updated_at','source_indexed_at'].every(k=>optional(v,k,timestamp))
+    && optional(v,'reported_months',months=>Array.isArray(months) && months.every(m=>text(m) && /^\d{4}-\d{2}$/.test(m) && day(m+'-01')))
+    && optional(v,'recent_30_days',metricBase);
+  const source = (v:unknown) => object(v) && text(v.id) && ['ok','failed','partial','pending'].includes(String(v.status))
+    && timestamp(v.checked_at) && nullable(v.last_success,timestamp) && count(v.rows) && day(v.requested_start) && day(v.requested_end) && texts(v.errors)
+    && optional(v,'source_commit',commit) && optional(v,'source_url',url) && optional(v,'upstream_updated_at',timestamp);
   if(!object(value)) return false;
   const d = value;
   if(d.schema_version !== 1 || !timestamp(d.generated_at) || !Array.isArray(d.papers) || !object(d.coverage) || !Array.isArray(d.sources) || !object(d.schedule) || !object(d.readership)) return false;
@@ -23,14 +35,15 @@ export function validSnapshot(value: unknown): value is Snapshot {
     || !Array.isArray(c.by_journal) || !c.by_journal.every(j=>object(j) && text(j.id) && text(j.name) && count(j.count) && count(j.candidates) && nullable(j.oldest,day) && nullable(j.newest,day))) return false;
   if(!count(s.metadata_hours) || !text(s.citations) || !text(s.repair) || !nullable(s.last_citations,timestamp) || !nullable(s.last_repair,timestamp)
     || !text(d.readership.status) || !text(d.readership.reason) || d.readership.measured !== c.accesses) return false;
-  if(!d.sources.every(source=>object(source) && text(source.id) && ['ok','failed','partial','pending'].includes(String(source.status))
-    && timestamp(source.checked_at) && nullable(source.last_success,timestamp) && count(source.rows) && day(source.requested_start) && day(source.requested_end) && texts(source.errors))) return false;
+  if(!d.sources.every(source) || !optional(d.readership,'source',source)) return false;
   const ids = new Set<string>();
   return d.papers.every(p=>{
     if(!object(p) || !doi(p.doi) || p.id!==p.doi || ids.has(p.id as string) || !text(p.title) || !p.title || !['preprint','published'].includes(String(p.kind))
       || !texts(p.authors) || !day(p.date) || !text(p.date_source) || !text(p.journal_id) || !text(p.journal) || !timestamp(p.metadata_observed_at)
       || p.article_url!=='https://doi.org/'+p.doi || !texts(p.keywords) || !nullable(p.related_doi,doi) || !nullable(p.abstract,text) || !nullable(p.abstract_license,text)
       || (p.abstract && !['CC0-1.0','CC-BY-4.0','CC-BY-SA-4.0'].includes(String(p.abstract_license))) || !metric(p.accesses) || !metric(p.citations)
+      || !optional(p,'downloads',metric) || !optional(p,'vor_date',day) || !optional(p,'reviewed_preprint_date',day)
+      || !optional(p,'publication_history',rows=>Array.isArray(rows) && rows.every(v=>object(v) && ['vor','reviewed-preprint','preprint'].includes(String(v.status)) && doi(v.doi) && day(v.date)))
       || !Array.isArray(p.versions) || !p.versions.every(v=>object(v) && count(v.version) && v.version>0 && day(v.date))
       || (p.kind==='preprint' && !p.versions.some(v=>v.version===1 && v.date===p.date))
       || !Array.isArray(p.topics) || !p.topics.every(topic=>object(topic) && text(topic.id) && /^https:\/\/openalex\.org\/T\d+$/.test(topic.id) && text(topic.name)

@@ -43,6 +43,43 @@
         "1529-2401"
       ],
       "neuroscience_only": true
+    },
+    {
+      "id": "elife",
+      "name": "eLife",
+      "issns": [
+        "2050-084X"
+      ],
+      "neuroscience_only": false
+    },
+    {
+      "id": "plos-biology",
+      "name": "PLOS Biology",
+      "issns": [
+        "1545-7885",
+        "1544-9173"
+      ],
+      "neuroscience_only": false,
+      "metadata_api": "plos"
+    },
+    {
+      "id": "plos-computational-biology",
+      "name": "PLOS Computational Biology",
+      "issns": [
+        "1553-7358",
+        "1553-734X"
+      ],
+      "neuroscience_only": false,
+      "metadata_api": "plos"
+    },
+    {
+      "id": "plos-one",
+      "name": "PLOS ONE",
+      "issns": [
+        "1932-6203"
+      ],
+      "neuroscience_only": false,
+      "metadata_api": "plos"
     }
   ],
   "neuroscience_field_id": "https://openalex.org/fields/28",
@@ -55,6 +92,20 @@
       "redistribution_allowed": true,
       "permission_url": "https://github.com/RobertoDF/biorxiv-top/blob/data/usage.json",
       "permission_basis": "User-authorized use of publicly published DOI-keyed numerical facts; no license for upstream code or expressive metadata is assumed."
+    },
+    {
+      "id": "plos-api",
+      "name": "PLOS official Search API",
+      "enabled": true,
+      "redistribution_allowed": true,
+      "permission_url": "https://api.plos.org/api-display-policy/"
+    },
+    {
+      "id": "elife-api",
+      "name": "eLife official public API",
+      "enabled": true,
+      "redistribution_allowed": true,
+      "permission_url": "https://github.com/elifesciences/developer-resources"
     }
   ],
   "disabled_adapters": [

@@ -73,6 +73,24 @@ test('a throwing localStorage property getter still allows startup and locale ch
   await page.getByRole('button',{name:'English',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('lang','en');
 });
 
+test('malformed optional readership provenance cannot poison the last-good cache',async({page})=>{
+  const measured={...fixture,papers:fixture.papers.map((p,i)=>({...p,accesses:i===0?{value:244,source:'biorxiv-top public numeric snapshot',observed_at:stamp,source_commit:'a329dc20051d44ff28488f69fc1ac74b11b5a176',source_url:'https://github.com/RobertoDF/biorxiv-top/blob/data/usage.json',definition:'Available monthly events'}:p.accesses})),coverage:{...fixture.coverage,accesses:1},readership:{...fixture.readership,measured:1,source:{...fixture.sources[0],id:'biorxiv-top-numeric',source_commit:'a329dc20051d44ff28488f69fc1ac74b11b5a176',source_url:'https://github.com/RobertoDF/biorxiv-top/blob/data/usage.json',upstream_updated_at:stamp}}};
+  await page.route('**/data/papers.json',route=>route.fulfill({json:measured}));
+  await page.goto('./');await expect(page.locator('.paper')).toHaveCount(3);
+  for(const malformed of [
+    {...measured,readership:{...measured.readership,source:{...measured.readership.source,source_commit:123}}},
+    {...measured,readership:{...measured.readership,source:{...measured.readership.source,upstream_updated_at:'invalid'}}},
+    {...measured,papers:measured.papers.map((p,i)=>i===0?{...p,accesses:{...p.accesses,source_commit:123}}:p)},
+    {...measured,papers:measured.papers.map((p,i)=>i===0?{...p,accesses:{...p.accesses,upstream_fetched_date:'2026-02-30'}}:p)},
+  ]){
+    await page.route('**/data/papers.json',route=>route.fulfill({json:malformed}));await page.reload();
+    await expect(page.locator('.paper')).toHaveCount(3);await expect(page.locator('.error-notice')).toContainText('last-good snapshot');
+    await expect(page.locator('.paper').first().locator('.metric-value').first()).toHaveText('244');
+  }
+  await page.route('**/data/papers.json',route=>route.fulfill({status:503,body:'offline'}));await page.reload();
+  await expect(page.locator('.paper')).toHaveCount(3);await expect(page.locator('.paper').first().locator('.metric-value').first()).toHaveText('244');
+});
+
 test('partial and empty snapshots are explicit, desktop/mobile have no horizontal overflow',async({page})=>{
   await page.route('**/data/papers.json',route=>route.fulfill({json:{...fixture,sources:[{...fixture.sources[0],status:'failed',errors:['Official API temporarily unavailable']}]}}));
   await page.goto('./');await expect(page.locator('.partial-notice')).toBeVisible();
@@ -102,4 +120,22 @@ test('real-shaped monthly readership ranks by raw reads with explicit partial pr
   await expect(page.locator('.paper').first()).toContainText('34 full-text + 210 PDF');
   await expect(page.locator('#hide-published')).toBeChecked();
   await page.locator('#hide-published').uncheck();await expect(page).toHaveURL(/include_published=1/);
+});
+
+test('published raw views rank across journals with PLOS attribution and eLife version dates',async({page})=>{
+  const plos={...paper('plos','published',99),journal_id:'plos-biology',journal:'PLOS Biology',accesses:{value:14,source:'PLOS Search API',observed_at:stamp,provider:'plos-api',definition:'PLOS source-defined total views, all time',recent_30_days:{value:3,source:'PLOS Search API',observed_at:stamp},source_indexed_at:stamp}};
+  const elife={...paper('elife','published',0),journal_id:'elife',journal:'eLife',accesses:{value:607,source:'eLife public API',observed_at:stamp,provider:'elife-api',definition:'eLife page views, all versions (including reviewed preprints before VOR)'},downloads:{value:27,source:'eLife public API',observed_at:stamp},vor_date:today,reviewed_preprint_date:'2025-09-24',publication_history:[{status:'reviewed-preprint',doi:'10.7554/elife.108246.1',date:'2025-09-24'},{status:'vor',doi:'10.7554/elife.108246',date:today}]};
+  const measured={...fixture,papers:[...fixture.papers,plos,elife],coverage:{...fixture.coverage,total:6,published:3,accesses:2,by_journal:[...fixture.coverage.by_journal,{id:'plos-biology',name:'PLOS Biology',count:1,candidates:1,oldest:today,newest:today},{id:'elife',name:'eLife',count:1,candidates:1,oldest:today,newest:today}]},readership:{...fixture.readership,measured:2}};
+  await page.route('**/data/papers.json',route=>route.fulfill({json:measured}));
+  await page.goto('./?tab=published');await expect(page.locator('.paper')).toHaveCount(3);
+  await expect(page.locator('.paper').first()).toContainText('607');await expect(page.locator('.published-reader')).toContainText('2/3');
+  await page.locator('.paper').first().getByText('Sources & metrics',{exact:true}).click();
+  await expect(page.locator('.paper').first()).toContainText('eLife downloads, all versions: 27');
+  await expect(page.locator('.paper').first()).toContainText('First eLife reviewed preprint: Sep 24, 2025');
+  await page.locator('#journal').selectOption('plos-biology');await expect(page.locator('.reader-attribution')).toHaveText('Data Provided by PLOS');
+  await page.locator('.paper').first().getByText('Sources & metrics',{exact:true}).click();
+  await expect(page.locator('.paper').first()).toContainText('PLOS views, last 30 days: 3');
+  await expect(page.locator('.paper').first()).toContainText('Not a guaranteed readership cutoff.');
+  await page.reload();await expect(page.locator('#journal')).toHaveValue('plos-biology');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
 });

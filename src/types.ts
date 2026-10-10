@@ -12,6 +12,7 @@ export interface Metric {
   permission_url?: string;
   fulltext?: number; pdf?: number; upstream_fetched_date?: string | null; upstream_updated_at?: string;
   source_commit?: string; source_url?: string; reported_months?: string[];
+  provider?:string; attribution?:string; recent_30_days?:Metric; source_indexed_at?:string|null;
 }
 export interface Topic { id: string; name: string; score: number; field_id: string | null; source: string; automatic: boolean }
 export interface Paper {
@@ -20,10 +21,12 @@ export interface Paper {
   metadata_observed_at: string; topics: Topic[]; keywords: string[];
   versions: { version: number; date: string }[]; updated_date?: string; related_doi: string | null;
   abstract: string | null; abstract_license: string | null; accesses: Metric; citations: Metric;
+  downloads?:Metric; vor_date?:string|null; reviewed_preprint_date?:string|null;
+  publication_history?:{status:string;doi:string;date:string}[];
   provenance: { source: string; url: string; observed_at: string; license: string }[];
   classification: { method: string; evidence: string | string[]; automatic: boolean; warning?: string };
 }
-export interface JournalCoverage { id: string; name: string; count: number; candidates: number; oldest: string | null; newest: string | null }
+export interface JournalCoverage { id: string; name: string; count: number; candidates: number; measured_accesses?:number; oldest: string | null; newest: string | null }
 export interface SourceStatus { id: string; status: string; checked_at: string; last_success: string | null; rows: number; requested_start: string; requested_end: string; errors: string[] }
 export interface Snapshot {
   schema_version: 1; generated_at: string; papers: Paper[];

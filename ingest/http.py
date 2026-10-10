@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import json
 import time
+import re
 import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
-ALLOWED_HOSTS = {"api.biorxiv.org", "api.crossref.org", "api.openalex.org", "api.github.com", "raw.githubusercontent.com"}
+ALLOWED_HOSTS = {"api.biorxiv.org", "api.crossref.org", "api.openalex.org", "api.github.com", "raw.githubusercontent.com", "api.plos.org", "api.elifesciences.org"}
 
 
 class SourceError(RuntimeError):
@@ -50,11 +51,18 @@ class Client:
             raise SourceError("Only the approved public numerical reference branch may be queried")
         if parsed.hostname == "raw.githubusercontent.com" and not parsed.path.startswith("/RobertoDF/biorxiv-top/"):
             raise SourceError("Only the approved public numerical reference snapshot may be fetched")
+        if parsed.hostname == "api.plos.org" and (parsed.path != "/search" or not 1 <= int(urllib.parse.parse_qs(parsed.query).get("rows",["100"])[0]) <= 100):
+            raise SourceError("PLOS requests must use its documented search endpoint and at most 100 rows")
+        if parsed.hostname == "api.elifesciences.org" and not re.fullmatch(r"/(?:articles/\d+/versions|metrics/article/\d+/(?:page-views|downloads))",parsed.path):
+            raise SourceError("Only documented eLife version history and metric endpoints are enabled")
         host = parsed.hostname
         for attempt in range(3):
-            if self.requests >= self.budget or (host == "api.openalex.org" and self.host_requests.get(host, 0) >= 700):
+            if self.requests >= self.budget or (host == "api.openalex.org" and self.host_requests.get(host, 0) >= 700) or (host == "api.plos.org" and self.host_requests.get(host,0) >= 90):
                 raise SourceError("Conservative request budget exhausted; deferred to next refresh")
-            wait = max(0, 0.8 - (self.clock() - self.last.get(host, -1000)))
+            # The shared serial PLOS queue stays below 10/minute, 300/hour,
+            # and 7200/day. Every journal and retry shares this host pacing.
+            interval = 12.1 if host == "api.plos.org" else 1.0 if host == "api.elifesciences.org" else 0.8
+            wait = max(0, interval - (self.clock() - self.last.get(host, -1000)))
             if wait:
                 self.sleep(wait)
             self.requests += 1

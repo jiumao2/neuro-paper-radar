@@ -85,7 +85,7 @@ def refresh_reference(client, state: dict, config: dict):
         state["readership_source_commit"] = commit
         state["sources"][PROVIDER] = report
     except (SourceError, ValueError) as error:
-        state["sources"][PROVIDER] = {"id":PROVIDER,"status":"failed","checked_at":stamp,
-            "last_success":old_report.get("last_success"),"rows":0,"requested_start":old_report.get("requested_start",stamp[:10]),
+        state["sources"][PROVIDER] = {**old_report,"id":PROVIDER,"status":"failed","checked_at":stamp,
+            "last_success":old_report.get("last_success"),"rows":old_report.get("rows",0),"requested_start":old_report.get("requested_start",stamp[:10]),
             "requested_end":old_report.get("requested_end",stamp[:10]),"errors":[str(error)],
             "source_commit":old_report.get("source_commit")}

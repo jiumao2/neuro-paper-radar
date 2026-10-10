@@ -6,13 +6,17 @@
 
 发现神经科学预印本与已发表论文的开放、双语静态应用。架构受到 [biorxiv-top](https://github.com/RobertoDF/biorxiv-top) 的启发；本项目独立实现，未复制其代码或界面。
 
-使用 Python 数据采集、TypeScript 前端、GitHub Actions 和 GitHub Pages。生产元数据来自 bioRxiv、Crossref 和 OpenAlex 官方 API。初始期刊为 Nature、Nature Neuroscience、Nature Methods、Nature Communications 和 Journal of Neuroscience，以稳定的 ISSN 标识；综合性期刊保留神经科学分类依据。
+使用 Python 数据采集、TypeScript 前端、GitHub Actions 和 GitHub Pages。生产元数据来自 bioRxiv、Crossref、OpenAlex 和 PLOS 官方 API。期刊为 Nature、Nature Neuroscience、Nature Methods、Nature Communications、Journal of Neuroscience、eLife、PLOS Biology、PLOS Computational Biology 和 PLOS ONE，以稳定的 ISSN 标识；综合性期刊保留神经科学分类依据。
 
 ## 指标与日期
 
 预印本默认按真实原始阅读量排序，来自公开的 [biorxiv-top 数值快照](https://github.com/RobertoDF/biorxiv-top/blob/data/usage.json)：已有月份的全文浏览与 PDF 下载之和，保留来源提交、上游采集及本项目获取时间。仅重用 DOI 对应的数值事实；标题、作者与首次发布日期仍来自本项目的官方元数据采集。上游仅覆盖近期论文及部分月份，当月尚未结束，不能保证完整生命周期或全部版本覆盖；次数不是独立读者人数。发布日期筛选的是论文，而非阅读事件日期。
 
-默认隐藏已有相关已发表 DOI 的预印本，可通过开关显示；没有发表链接不等于确认未发表。支持 OpenAlex 引用次数与最新日期排序。缺失值与来源报告的零值严格区分；缺失值排在有测量值的论文之后且无排名。当前筛选全部缺失阅读量时，界面明确回退至引用次数，若也全部缺失则按最新日期浏览。原有五个期刊的逐篇访问量仍不可用；不虚构数据、不抓取受限页面、不使用未授权 Altmetric 数据。跨来源原始指标不能完全直接比较。
+默认隐藏已有相关已发表 DOI 的预印本，可通过开关显示；没有发表链接不等于确认未发表。支持 OpenAlex 引用次数与最新日期排序。缺失值与来源报告的零值严格区分；缺失值排在有测量值的论文之后且无排名。当前筛选全部缺失阅读量时，界面明确回退至引用次数，若也全部缺失则按最新日期浏览。已发表阅读量使用允许重用的 PLOS 与 eLife 官方 API，原有五个期刊的访问量仍不可用；不虚构数据、不抓取受限页面、不使用未授权 Altmetric 数据。跨来源原始指标不能完全直接比较。
+
+PLOS 使用来源定义的累计总浏览量作为主指标，过去 30 天浏览量单独展示。每条 PLOS 记录标注“Data Provided by PLOS”。来源报告的零值可能尚待索引更新，索引时间不是保证的指标截止时间。所有 PLOS 请求共用间隔 12.1 秒的串行队列，每次最多 100 条，遵守每分钟、每小时与每日限额。
+
+eLife 使用官方累计 `totalValue` 页面浏览量，不使用分页首屏之和；下载量单列。计数汇总 eLife 所有版本，包含正式发表之前的经评审预印本。仅官方历史确认 `status=vor`、`stage=published` 的记录进入“已发表”；保留首次正式版本日期及更早的经评审预印本日期。版本 DOI 后缀归并为一个文章 ID。受限队列与缓存保留有效计数，并报告待处理记录。
 
 预印本按首个 v1 发布日期筛选；已发表论文按核实的首次在线发表日期筛选，不使用入库或采集日期。保留版本历史及相关已发表 DOI；自动主题分类的不确定性明确展示。
 

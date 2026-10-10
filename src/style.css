@@ -7,3 +7,5 @@
 @media print{.hero-art,.filters,.search-row,.notice-actions,.locale-button,.paper-actions,.more{display:none}.paper{break-inside:avoid}.paper-list{border:0}.coverage-notice{background:#fff}.hero{min-height:180px}.paper-title{color:#000}.metric.missing{color:#666}}
 
 .publication-status{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:16px;font-size:11px;color:var(--muted)}.publication-status label{display:flex;gap:6px;align-items:center;color:var(--ink)}.publication-status input{accent-color:var(--teal);width:15px;height:15px}.publication-status span{font-size:10px}.reader-available{background:#edf3e9;border-color:#cbdcc4;color:#405b3e}.reader-available p{max-width:960px}
+
+.reader-attribution{font-size:10px;color:var(--muted);margin:7px 0 0}.metric-label{white-space:normal}

@@ -113,6 +113,11 @@ def biorxiv_paper(versions: list[dict], stamp: str) -> dict | None:
 
 def crossref_paper(work: dict, journal: dict, stamp: str) -> dict | None:
     identifier = doi(work.get("DOI"))
+    if journal["id"] == "elife" and identifier:
+        match = re.fullmatch(r"10\.7554/elife\.(\d+)(?:\.\d+)?",identifier)
+        if not match:
+            return None
+        identifier = f"10.7554/elife.{match[1]}"
     first_date = exact_date(work.get("published-online"))
     if not identifier or not first_date or work.get("type") != "journal-article":
         return None
@@ -126,6 +131,8 @@ def crossref_paper(work: dict, journal: dict, stamp: str) -> dict | None:
     p = base_paper(identifier, "published", titles[0], authors, first_date,
                    journal["id"], journal["name"], stamp, "Crossref published-online (publisher deposit)")
     p["issns"] = sorted(set(work["ISSN"]) & set(journal["issns"]))
+    if journal["id"] == "elife":
+        p["elife_vor_verified"] = False
     p["provenance"] = [{"source": "Crossref", "url": f"https://api.crossref.org/works/{identifier}",
                          "observed_at": stamp, "license": "Bibliographic metadata; abstracts excluded"}]
     # Crossref abstracts and publisher pages are deliberately never ingested.

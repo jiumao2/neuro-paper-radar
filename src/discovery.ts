@@ -1,7 +1,7 @@
 import type { Filters, Paper, Sort, WindowKey } from './types';
 
 export const defaults: Filters = { kind: 'preprint', window: '30d', sort: 'accesses', journal: 'all', topic: 'all', query: '', hidePublished:true };
-export const journalIds = ['nature','nature-neuroscience','nature-methods','nature-communications','journal-of-neuroscience'];
+export const journalIds = ['nature','nature-neuroscience','nature-methods','nature-communications','journal-of-neuroscience','elife','plos-biology','plos-computational-biology','plos-one'];
 export const windows: WindowKey[] = ['today','7d','30d','3m','6m','1y'];
 export const sorts: Sort[] = ['accesses','citations','newest'];
 

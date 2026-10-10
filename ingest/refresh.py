@@ -17,6 +17,7 @@ from .model import (OPEN_ABSTRACT_LICENSES, attach_openalex, biorxiv_paper, cros
                     doi, exact_date, normalize_work, subtract_months, validate_snapshot)
 from .readership import validated_imports
 from .biorxiv_usage import refresh_reference
+from .published_usage import collect_plos, refresh_elife
 
 ROOT = Path(__file__).resolve().parents[1]
 BIO_FIELDS = {"doi", "title", "authors", "date", "version", "license", "category", "published", "server"}
@@ -110,6 +111,12 @@ def collect_crossref(client, journal, start, end, state, stamp, report):
         for row in rows:
             paper = crossref_paper(row, journal, data.get("_retrieved_at", stamp))
             if paper:
+                old = state["published"].get(paper["id"],{})
+                for key in ("accesses","downloads","elife_vor_verified","vor_date","reviewed_preprint_date","publication_history"):
+                    if key in old:
+                        paper[key] = old[key]
+                if paper.get("vor_date"):
+                    paper["date"] = paper["vor_date"]
                 state["published"][paper["id"]] = paper
             else:
                 report["excluded"]["invalid_or_imprecise_online_date"] = report["excluded"].get("invalid_or_imprecise_online_date", 0) + 1
@@ -216,6 +223,9 @@ def make_snapshot(state, config, stamp, start, end):
         papers.append(p)
     candidates = Counter()
     for original in state["published"].values():
+        if original["journal_id"] == "elife" and not original.get("elife_vor_verified"):
+            excluded["elife_vor_unverified_or_reviewed_preprint"] += 1
+            continue
         if not start <= original["date"] <= end:
             continue
         p = copy.deepcopy(original)
@@ -226,11 +236,15 @@ def make_snapshot(state, config, stamp, start, end):
         else:
             excluded["non_neuroscience_or_unknown_topics"] += 1
     for paper in papers:
-        m = state.get("readership", {}).get(paper["id"]) or state.get("reference_readership", {}).get(paper["id"])
-        if m and paper["kind"] == "preprint":
+        m = state.get("readership", {}).get(paper["id"]) or (state.get("reference_readership", {}).get(paper["id"]) if paper["kind"] == "preprint" else None)
+        if m:
             paper["accesses"] = m
             paper["provenance"].append({"source":m["source"],"url":m["permission_url"],"observed_at":m["observed_at"],
-                                        "license":"Public numerical usage facts; upstream code and paper text excluded"})
+                                        "license":"Public numerical usage facts; upstream code and paper text excluded" if m.get("provider")=="biorxiv-top-numeric" else "Provider-authorized numerical reuse"})
+        if paper["kind"]=="published" and paper["accesses"]["value"] is not None:
+            measured = paper["accesses"]
+            paper["provenance"].append({"source":measured.get("attribution",measured["source"]),"url":measured["source_url"],
+                                        "observed_at":measured["observed_at"],"license":"Public API with required attribution"})
     papers.sort(key=lambda p: (p["date"], p["id"]), reverse=True)
     by_source = Counter(p["journal_id"] for p in papers)
     counts = {"preprints": sum(p["kind"] == "preprint" for p in papers),
@@ -243,12 +257,13 @@ def make_snapshot(state, config, stamp, start, end):
               "oldest": min((p["date"] for p in papers), default=None),
               "newest": max((p["date"] for p in papers), default=None),
               "by_journal": [{**j, "count": by_source[j["id"]], "candidates": candidates[j["id"]],
+                              "measured_accesses":sum(p["accesses"]["value"] is not None for p in papers if p["journal_id"]==j["id"]),
                               "oldest": min((p["date"] for p in papers if p["journal_id"] == j["id"]), default=None),
                               "newest": max((p["date"] for p in papers if p["journal_id"] == j["id"]), default=None)} for j in config["journals"]]}
     return {"schema_version": 1, "generated_at": stamp, "papers": papers, "coverage": counts,
             "sources": list(state["sources"].values()),
             "readership": {"status": "partial" if counts["accesses"] else "unavailable", "measured": counts["accesses"],
-                           "reason": "Preprint reads are sums of available monthly full-text views and PDF downloads from an independent public snapshot; coverage and lifetime/version completeness are limited",
+                           "reason": "Partial raw readership: available bioRxiv monthly views+PDF facts; PLOS source-defined all-time views; eLife all-version page views. These sources count different events and windows",
                            "source": state["sources"].get("biorxiv-top-numeric"),
                            "disabled_adapters": config["disabled_adapters"]},
             "schedule": {"metadata_hours": 6, "citations": "daily", "repair": "weekly",
@@ -278,10 +293,12 @@ def run(mode="auto", root=ROOT, client=None):
             previous = state["sources"].get(name, {})
             full_success = previous.get("last_full_success")
             full_due = not full_success or date.fromisoformat(full_success[:10]).isocalendar()[:2] != today.isocalendar()[:2]
-            source_start = year_start if mode in {"repair", "backfill"} or (repair and full_due) else (today - timedelta(days=8)).isoformat()
+            source_start = year_start if not full_success or (journal and journal.get("metadata_api")=="plos") or mode in {"repair", "backfill"} or (repair and full_due) else (today - timedelta(days=8)).isoformat()
             report = source_report(name, previous, stamp_now(), source_start, end)
             try:
-                if journal:
+                if journal and journal.get("metadata_api")=="plos":
+                    collect_plos(client,journal,source_start,end,state,stamp,report)
+                elif journal:
                     collect_crossref(client, journal, source_start, end, state, stamp, report)
                 else:
                     collect_biorxiv(client, source_start, end, state, stamp, report)
@@ -319,6 +336,8 @@ def run(mode="auto", root=ROOT, client=None):
     if "openalex" in state["sources"]:
         state["sources"]["openalex"]["unmatched"] = sum(state["openalex"].get(d, {"_not_found": True}).get("_not_found", False) for d in identifiers)
     refresh_reference(client,state,config)
+    if metadata:
+        refresh_elife(client,state,config,stamp_now(),year_start,end)
     snapshot = make_snapshot(state, config, stamp_now(), year_start, end)
     validate_snapshot(snapshot, config)
     # State and public snapshot are written only after validation; prior content survives invalid refreshes.

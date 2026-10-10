@@ -1,5 +1,6 @@
 import copy
 import unittest
+from ingest.http import SourceError
 
 from ingest.biorxiv_usage import numeric_snapshot, refresh_reference
 
@@ -45,6 +46,22 @@ class UsageSnapshotTests(unittest.TestCase):
                 if 'raw.githubusercontent' in url:raise AssertionError('No redundant source download')
                 return {'object':{'sha':COMMIT}}
         refresh_reference(Unchanged(),state,config);self.assertEqual(state['reference_readership'],before)
+
+    def test_success_failure_unchanged_recovery_preserves_provenance(self):
+        config={'readership_providers':[{'id':'biorxiv-top-numeric','enabled':True}]};state={'sources':{}}
+        class Good:
+            def get(self,url):return {'object':{'sha':COMMIT}} if 'api.github.com' in url else payload()
+        refresh_reference(Good(),state,config)
+        old=copy.deepcopy(state['sources']['biorxiv-top-numeric'])
+        class Failing:
+            def get(self,url):raise SourceError('temporary failure')
+        refresh_reference(Failing(),state,config)
+        self.assertEqual(state['sources']['biorxiv-top-numeric']['source_url'],old['source_url'])
+        refresh_reference(Good(),state,config)
+        current=state['sources']['biorxiv-top-numeric']
+        self.assertEqual(current['status'],'ok')
+        for key in ('source_url','source_commit','upstream_updated_at','measured_upstream','last_success'):
+            self.assertEqual(current[key],old[key])
 
 
 if __name__=='__main__':unittest.main()

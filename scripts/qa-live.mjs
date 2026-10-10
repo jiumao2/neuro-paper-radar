@@ -1,6 +1,7 @@
 // GPL-3.0-only. Browser checks against the actual snapshot, never synthetic data.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import { execFileSync } from 'node:child_process';
 import { chromium, devices, expect } from '@playwright/test';
 const base = process.env.QA_BASE_URL || 'http://127.0.0.1:4173/neuro-paper-radar/';
 const browser = await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||undefined});
@@ -17,7 +18,16 @@ try {
       const buildResponse=await context.request.get(new URL('build-info.json',base).href,{headers:{'Cache-Control':'no-cache'}});
       assert.equal(buildResponse.status(),200);build=await buildResponse.json();
       assert.match(build.commit,/^[a-f0-9]{40}$/);assert.equal(build.papers,data.coverage.total);
-      if(process.env.QA_EXPECTED_COMMIT)assert.equal(build.commit,process.env.QA_EXPECTED_COMMIT);
+      if(process.env.QA_EXPECTED_COMMIT && build.commit!==process.env.QA_EXPECTED_COMMIT){
+        // A serialized data refresh may publish while this live QA job starts.
+        // Accept only an actual descendant with exclusively the three data files
+        // changed. Any code/workflow change still fails the verified revision check.
+        execFileSync('git',['fetch','--no-tags','origin',build.commit],{stdio:'pipe'});
+        execFileSync('git',['merge-base','--is-ancestor',process.env.QA_EXPECTED_COMMIT,build.commit],{stdio:'pipe'});
+        const changed=execFileSync('git',['diff','--name-only',process.env.QA_EXPECTED_COMMIT,build.commit],{encoding:'utf8'}).trim().split('\n');
+        assert.ok(changed.length && changed.every(p=>['public/data/papers.json','data/state.json.gz','data/coverage.json'].includes(p)),'The published descendant must contain only validated refresh data');
+        build.validated_code_commit=process.env.QA_EXPECTED_COMMIT;
+      }
     }
     await page.locator('#window').selectOption('1y');
     const preprints=data.papers.filter(p=>p.kind==='preprint'&&!p.related_doi);
@@ -42,7 +52,14 @@ try {
     for(const journal of data.coverage.by_journal){
       await page.locator('#journal').selectOption(journal.id);
       assert.equal(await page.locator('.paper').count(),Math.min(40,journal.count));
-      journalEvidence.push({journal:journal.id,count:journal.count});
+      const measurements=data.papers.filter(p=>p.journal_id===journal.id && p.accesses.value!==null).sort((a,b)=>b.accesses.value-a.accesses.value||b.date.localeCompare(a.date)||a.id.localeCompare(b.id));
+      if(measurements.length){
+        assert.equal(await page.locator('.paper-title').first().getAttribute('href'),'https://doi.org/'+measurements[0].doi);
+        await expect(page.locator('.published-reader')).toBeVisible();
+        if(journal.id.startsWith('plos-'))await expect(page.locator('.reader-attribution').first()).toHaveText('Data Provided by PLOS');
+        if(journal.id==='elife')await expect(page.locator('.paper').first()).toContainText('all versions');
+      }
+      journalEvidence.push({journal:journal.id,count:journal.count,measured_views:measurements.length,top_views_doi:measurements[0]?.doi,top_views:measurements[0]?.accesses.value});
     }
     await page.locator('#journal').selectOption('all');
     assert.equal(await page.locator('.paper').count(),Math.min(40,data.coverage.published));
