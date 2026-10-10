@@ -16,4 +16,40 @@ Preprints use the first v1 posting date; published papers use a verified first o
 
 Original project code is licensed **GPL-3.0-only**; see the canonical [GNU General Public License version 3](LICENSE). This license does not relicense third-party papers or metadata. OpenAlex metadata is CC0. Crossref metadata is reusable, but its abstracts do not have a blanket reuse license. bioRxiv abstracts are displayed only with a recorded license allowing redistribution; otherwise the app links to the original source. Each record retains provenance. Restricted publisher content and unverified readership endpoints are excluded.
 
-Implementation, source documentation, checks, coverage reports, and deployment instructions will be maintained here as the application is built.
+## Run and check
+
+Requires Node.js 24 and Python 3.12+, with no Python dependencies or API credentials.
+
+```sh
+npm ci
+npm run dev
+python -m unittest discover -s tests -v
+python -m ingest.validate
+npm run typecheck
+npm run lint
+npm test
+npm run build
+npx playwright install chromium
+npm run test:browser
+```
+
+For an installed system Chromium, set `PLAYWRIGHT_CHROMIUM_EXECUTABLE=/usr/bin/chromium`. Browser fixtures are clearly marked test data and never enter the production snapshot.
+
+```sh
+python -m ingest.refresh --mode backfill  # initial rolling calendar year
+python -m ingest.refresh --mode auto      # metadata + only-due citation/repair work
+```
+
+The public snapshot is `public/data/papers.json`; the exact coverage report is [data/coverage.json](data/coverage.json) after ingestion. Compressed, source-specific last-good state is `data/state.json.gz`. Invalid refreshes do not replace the public snapshot; API failures retain source records and report failures. Browser IndexedDB retains a last-good snapshot for a failed subsequent fetch.
+
+## Automation and deployment
+
+GitHub Pages uses **GitHub Actions** as its source. [Verify and deploy](.github/workflows/verify-deploy.yml) checks Python tests, data validity, TypeScript, lint, unit tests, browser flows/accessibility on desktop and mobile, then builds and deploys. An empty bootstrap snapshot is not deployed.
+
+[Refresh official paper data](.github/workflows/refresh.yml) runs at `00:17`, `06:17`, `12:17`, and `18:17` UTC. One schedule handles metadata, daily citations, and weekly repair without redundant schedules. Successful weekly source backfills are remembered separately, so one failing source does not multiply full backfills of successful sources. Manual modes are available in Actions. Refreshes commit only the public snapshot, coverage report, and last-good state, then deploy that snapshot. GitHub may delay or disable inactive repository schedules.
+
+Permissions are granular: ordinary verification reads repository content; only the refresh job writes data; only deploy jobs have `pages: write` and `id-token: write`. Actions are pinned to verified upstream commit SHAs. No paid services, account creation, persistent credentials, or client secrets are required. `build-info.json` records the actual built commit, workflow run, and snapshot timestamp.
+
+Date windows default to **Past 30 days**. Today is a UTC calendar day; past 7/30 days include today and the preceding 6/29 days. Month/year windows use inclusive dates and calendar subtraction with end-of-month/leap-year clamping. Filters are preserved in the URL; the English/Chinese choice persists locally. Original titles and topic names are retained.
+
+See [source policies and limitations](docs/SOURCES.md) for classification, metrics, licensing, and permitted adapter requirements. Contributions must preserve these constraints; project instructions are in [AGENTS.md](AGENTS.md).

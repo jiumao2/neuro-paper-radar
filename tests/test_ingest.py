@@ -1,0 +1,140 @@
+import copy
+import io
+import json
+import tempfile
+import unittest
+import urllib.error
+from datetime import date, datetime, timezone
+from pathlib import Path
+
+from ingest.http import Client, SourceError, retry_delay
+from ingest.model import (attach_openalex, biorxiv_paper, crossref_paper, doi, exact_date,
+                          metric, normalize_work, subtract_months, validate_paper)
+from ingest.readership import ApprovedReadershipQueue, validate_import
+from ingest.refresh import atomic_bytes, collect_biorxiv, make_snapshot
+
+CONFIG = json.loads((Path(__file__).parents[1] / 'config/sources.json').read_text())
+STAMP = '2026-10-10T12:00:00Z'
+
+
+def bio(version=1, day='2026-09-01', license='cc_by'):
+    return {'doi':'10.64898/2026.09.01.123456','title':'TEST FIXTURE — neurons', 'authors':'A; B',
+            'version':str(version),'date':day,'category':'neuroscience','server':'biorxiv',
+            'license':license,'abstract':'Fixture abstract','published':'10.1038/s41593-026-12345-x'}
+
+
+class ModelTests(unittest.TestCase):
+    def test_calendar_dates(self):
+        self.assertEqual(subtract_months(date(2024,5,31),3),date(2024,2,29))
+        self.assertEqual(subtract_months(date(2025,5,31),3),date(2025,2,28))
+        self.assertEqual(subtract_months(date(2024,2,29),12),date(2023,2,28))
+        self.assertEqual(subtract_months(date(2026,1,31),6),date(2025,7,31))
+
+    def test_doi_and_date_validation(self):
+        self.assertEqual(doi('https://doi.org/10.64898/2026.01.01.123456'),'10.64898/2026.01.01.123456')
+        self.assertIsNone(doi('javascript:alert(1)'))
+        self.assertIsNone(exact_date({'date-parts':[[2026,9]]}))
+        self.assertIsNone(exact_date({'date-parts':[[2025,2,29]]}))
+        self.assertEqual(exact_date({'date-parts':[[2024,2,29]]}),'2024-02-29')
+
+    def test_first_v1_not_revision(self):
+        p = biorxiv_paper([bio(2,'2026-10-01'),bio()],STAMP)
+        self.assertEqual(p['date'],'2026-09-01')
+        self.assertEqual(p['updated_date'],'2026-10-01')
+        self.assertEqual(len(p['versions']),2)
+        self.assertEqual(p['related_doi'],'10.1038/s41593-026-12345-x')
+        self.assertIsNone(biorxiv_paper([bio(2)],STAMP))
+        validate_paper(p)
+
+    def test_abstract_license_gate(self):
+        for license in ('cc_by','cc0','cc_by_sa'):
+            self.assertIsNotNone(biorxiv_paper([bio(license=license)],STAMP)['abstract'])
+        for license in ('cc_by_nc','all_rights_reserved','unknown'):
+            self.assertIsNone(biorxiv_paper([bio(license=license)],STAMP)['abstract'])
+
+    def test_stable_journal_and_online_date(self):
+        journal = CONFIG['journals'][0]
+        row = {'DOI':'10.1038/example','title':['Fixture'],'type':'journal-article', 'ISSN':['0028-0836'],
+               'published-online':{'date-parts':[[2026,9,1]]}, 'created':{'date-parts':[[2026,10,1]]},
+               'abstract':'Copyrighted abstract'}
+        p = crossref_paper(row,journal,STAMP)
+        self.assertEqual(p['date'],'2026-09-01')
+        self.assertIsNone(p['abstract'])
+        self.assertIsNone(crossref_paper({**row,'ISSN':['0000-0000'],'container-title':['Nature']},journal,STAMP))
+        self.assertIsNone(crossref_paper({k:v for k,v in row.items() if k!='published-online'},journal,STAMP))
+
+    def test_classification_evidence_and_merged_citations(self):
+        topic = {'id':'https://openalex.org/T123','display_name':'Neural circuits','score':0.8,
+                 'field':{'id':'https://openalex.org/fields/28'}}
+        work = normalize_work({'id':'https://openalex.org/W123','doi':'10.1038/fixture','cited_by_count':0,'topics':[topic]},STAMP)
+        p = biorxiv_paper([bio()],STAMP)
+        attach_openalex(p,work,CONFIG)
+        self.assertEqual(p['citations']['value'],0)
+        self.assertEqual(p['citations']['work_id'],'https://openalex.org/W123')
+        self.assertEqual(p['date'],'2026-09-01')
+        p.update(kind='published',journal_id='nature')
+        self.assertTrue(attach_openalex(p,work,CONFIG))
+        self.assertEqual(p['classification']['evidence'],['https://openalex.org/T123'])
+        p['topics']=[]
+        self.assertFalse(attach_openalex(p,None,CONFIG))
+        self.assertIsNone(metric()['value'])
+        for v in (-1,True,1.2):
+            with self.assertRaises(ValueError): metric(v)
+
+
+class RefreshTests(unittest.TestCase):
+    def test_actual_biorxiv_page_size(self):
+        rows=[{**bio(),'doi':f'10.64898/fixture.{i}'} for i in range(4)]
+        class FakeClient:
+            def __init__(self): self.urls=[]
+            def get(self,url):
+                self.urls.append(url)
+                return {'messages':[{'status':'ok','total':4}], 'collection':rows[:2] if '/0?' in url else rows[2:]}
+        client=FakeClient();state={'preprints':{}};report={'rows':0,'excluded':{}}
+        collect_biorxiv(client,'2026-09-01','2026-10-10',state,STAMP,report)
+        self.assertEqual(len(state['preprints']),4)
+        self.assertIn('/2?',client.urls[1])
+
+    def test_last_good_source_data_survives_failure(self):
+        state={'preprints':{'fixture':{'versions':{'1':bio()},'observed_at':STAMP}},
+               'published':{},'openalex':{},'sources':{'biorxiv':{'status':'failed','last_success':STAMP}}}
+        before=copy.deepcopy(state)
+        snapshot=make_snapshot(state,CONFIG,STAMP,'2025-10-10','2026-10-10')
+        self.assertEqual(snapshot['coverage']['preprints'],1)
+        self.assertEqual(snapshot['papers'][0]['metadata_observed_at'],STAMP)
+        self.assertEqual(snapshot['sources'][0]['status'],'failed')
+        self.assertEqual(state,before)
+        with tempfile.TemporaryDirectory() as directory:
+            target=Path(directory)/'good.json';atomic_bytes(target,b'last-good')
+            with self.assertRaises(TypeError): atomic_bytes(target,None)
+            self.assertEqual(target.read_bytes(),b'last-good')
+
+    def test_http_retries_respect_retry_after_and_restricted_hosts(self):
+        self.assertEqual(retry_delay('15',0),15)
+        self.assertEqual(retry_delay('Sat, 10 Oct 2026 12:01:00 GMT',0,datetime(2026,10,10,12,tzinfo=timezone.utc)),60)
+        waits=[];count=0
+        def opener(request,timeout):
+            nonlocal count
+            count+=1
+            if count==1: raise urllib.error.HTTPError(request.full_url,429,'Limited',{'Retry-After':'12'},None)
+            return io.BytesIO(b'{"ok":true}')
+        client=Client(opener=opener,sleeper=waits.append,clock=lambda:100)
+        self.assertTrue(client.get('https://api.crossref.org/works')['ok'])
+        self.assertIn(12,waits)
+        with self.assertRaises(SourceError): client.get('https://www.nature.com/articles/fixture/metrics')
+        def limited(request,timeout): raise urllib.error.HTTPError(request.full_url,429,'Limited',{'Retry-After':'600'},None)
+        with self.assertRaises(SourceError): Client(opener=limited,sleeper=lambda _:self.fail('must defer')).get('https://api.openalex.org/works')
+
+
+class ReadershipTests(unittest.TestCase):
+    def test_import_permissions_and_zero(self):
+        provider={'id':'fixture','name':'Fixture source','enabled':True,'redistribution_allowed':True,'permission_url':'https://example.org/permission'}
+        row={'provider':'fixture','doi':'10.1234/fixture','observed_at':'2020-01-01T00:00:00Z','value':0,'definition':'Declared article views','aggregation':'cumulative'}
+        self.assertEqual(validate_import(row,[provider])['value'],0)
+        with self.assertRaises(ValueError): validate_import(row,[])
+        with self.assertRaises(ValueError): validate_import({**row,'value':True},[provider])
+        with self.assertRaises(ValueError): validate_import({**row,'aggregation':'window'},[provider])
+        with self.assertRaises(ValueError): ApprovedReadershipQueue({**provider,'enabled':False},lambda _:None)
+
+
+if __name__=='__main__': unittest.main()
