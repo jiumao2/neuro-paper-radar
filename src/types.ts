@@ -11,7 +11,7 @@ export interface Metric {
   definition?: string;
   permission_url?: string;
 }
-export interface Topic { id: string; name: string; score: number; field_id: string; source: string; automatic: boolean }
+export interface Topic { id: string; name: string; score: number; field_id: string | null; source: string; automatic: boolean }
 export interface Paper {
   id: string; doi: string; kind: Kind; title: string; authors: string[]; date: string;
   date_source: string; journal_id: string; journal: string; article_url: string;

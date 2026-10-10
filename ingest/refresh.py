@@ -15,6 +15,7 @@ from pathlib import Path
 from .http import Client, SourceError
 from .model import (OPEN_ABSTRACT_LICENSES, attach_openalex, biorxiv_paper, crossref_paper,
                     doi, exact_date, normalize_work, subtract_months, validate_snapshot)
+from .readership import validated_imports
 
 ROOT = Path(__file__).resolve().parents[1]
 BIO_FIELDS = {"doi", "title", "authors", "date", "version", "license", "category", "published", "server"}
@@ -121,8 +122,17 @@ def collect_crossref(client, journal, start, end, state, stamp, report):
 def refresh_openalex(client, identifiers, cache, stamp, report):
     # 75 values stay below the supported OR limit (100) and bound URL length.
     missing = []
-    for offset in range(0, len(identifiers), 75):
-        batch = identifiers[offset:offset + 75]
+    aliases = {}
+    for identifier in identifiers:
+        old = cache.get(identifier, {})
+        canonical = old.get("doi") or identifier
+        aliases.setdefault(canonical, []).append(identifier)
+        # Migrate the earlier boolean marker into a bounded retry timestamp.
+        if old.get("alias_checked") and not old.get("alias_checked_at"):
+            old["alias_checked_at"] = old.get("checked_at")
+    canonical_dois = sorted(aliases)
+    for offset in range(0, len(canonical_dois), 75):
+        batch = canonical_dois[offset:offset + 75]
         params = {"filter": "doi:" + "|".join("https://doi.org/" + d for d in batch),
                   "per_page": 100, "select": "id,doi,cited_by_count,topics,keywords"}
         result = client.get("https://api.openalex.org/works?" + urllib.parse.urlencode(params))
@@ -133,25 +143,32 @@ def refresh_openalex(client, identifiers, cache, stamp, report):
         for row in rows:
             identifier = doi(row.get("doi"))
             if identifier:
-                cache[identifier] = normalize_work(row, stamp)
+                normalized = normalize_work(row, stamp)
+                for alias in aliases.get(identifier, [identifier]):
+                    cache[alias] = copy.deepcopy(normalized)
                 found.add(identifier)
-        for identifier in batch:
-            if identifier not in found:
+        for canonical in batch:
+            if canonical not in found:
                 # A missing match is unmeasured, never a zero or deletion of last-good data.
-                if identifier not in cache:
-                    cache[identifier] = {"_not_found": True, "checked_at": stamp}
-                else:
-                    cache[identifier]["checked_at"] = stamp
-                if cache[identifier].get("_not_found") and not cache[identifier].get("alias_checked"):
-                    missing.append(identifier)
+                for identifier in aliases[canonical]:
+                    if identifier not in cache:
+                        cache[identifier] = {"_not_found": True, "checked_at": stamp}
+                    else:
+                        cache[identifier]["checked_at"] = stamp
+                    checked = cache[identifier].get("alias_checked_at")
+                    if not checked or (datetime.fromisoformat(stamp.replace("Z", "+00:00")) -
+                                       datetime.fromisoformat(checked.replace("Z", "+00:00"))).days >= 7:
+                        missing.append(identifier)
         report["rows"] += len(rows)
     # Resolve a bounded queue of DOI aliases/merged versions with free singletons.
+    missing.sort(key=lambda identifier: (cache[identifier].get("alias_checked_at") or "", identifier))
     for identifier in missing[:75]:
         result = client.get("https://api.openalex.org/works/https://doi.org/" + identifier +
                             "?select=id,doi,cited_by_count,topics,keywords")
         if not result.get("_not_found"):
             cache[identifier] = normalize_work(result, stamp)
         cache[identifier]["alias_checked"] = True
+        cache[identifier]["alias_checked_at"] = stamp
         report["alias_lookups"] = report.get("alias_lookups", 0) + 1
     report["unmatched"] = sum(cache.get(d, {}).get("_not_found", True) for d in identifiers)
     report["aliases_deferred"] = max(0, len(missing) - 75)
@@ -205,6 +222,9 @@ def make_snapshot(state, config, stamp, start, end):
             papers.append(p)
         else:
             excluded["non_neuroscience_or_unknown_topics"] += 1
+    for paper in papers:
+        if paper["id"] in state.get("readership", {}):
+            paper["accesses"] = state["readership"][paper["id"]]
     papers.sort(key=lambda p: (p["date"], p["id"]), reverse=True)
     by_source = Counter(p["journal_id"] for p in papers)
     counts = {"preprints": sum(p["kind"] == "preprint" for p in papers),
@@ -221,8 +241,8 @@ def make_snapshot(state, config, stamp, start, end):
                               "newest": max((p["date"] for p in papers if p["journal_id"] == j["id"]), default=None)} for j in config["journals"]]}
     return {"schema_version": 1, "generated_at": stamp, "papers": papers, "coverage": counts,
             "sources": list(state["sources"].values()),
-            "readership": {"status": "unavailable", "measured": 0,
-                           "reason": "No approved per-paper publisher-access feed is configured",
+            "readership": {"status": "partial" if counts["accesses"] else "unavailable", "measured": counts["accesses"],
+                           "reason": "Only explicitly permitted publisher-access imports are enabled; coverage can be incomplete",
                            "disabled_adapters": config["disabled_adapters"]},
             "schedule": {"metadata_hours": 6, "citations": "daily", "repair": "weekly",
                          "last_citations": state.get("last_citations"), "last_repair": state.get("last_repair")}}
@@ -233,14 +253,17 @@ def run(mode="auto", root=ROOT, client=None):
     config = json.loads((root / "config/sources.json").read_text())
     state_path = root / "data/state.json.gz"
     state = read_state(state_path)
+    import_path = root / "data/readership.json"
+    imports = json.loads(import_path.read_text()) if import_path.exists() else []
+    state["readership"] = validated_imports(imports, config["readership_providers"])
     stamp, today = stamp_now(), datetime.now(timezone.utc).date()
     year_start = subtract_months(today, 12).isoformat()
     end = today.isoformat()
+    sync_upgrade = state.get("openalex_sync_version") != 2
     last_repair = state.get("last_repair", "")
     repair_due = not last_repair or date.fromisoformat(last_repair[:10]).isocalendar()[:2] != today.isocalendar()[:2]
     repair = mode in {"repair", "backfill"} or (mode == "auto" and repair_due)
-    citations = mode in {"backfill", "repair", "citations"} or (mode == "auto" and state.get("last_citations", "")[:10] != end)
-    start = year_start if repair else (today - timedelta(days=8)).isoformat()
+    citations = mode in {"backfill", "repair", "citations"} or (mode == "auto" and (sync_upgrade or state.get("last_citations", "")[:10] != end))
     metadata = mode != "citations"
     if metadata:
         tasks = [("biorxiv", None)] + [(j["id"], j) for j in config["journals"]]
@@ -268,7 +291,8 @@ def run(mode="auto", root=ROOT, client=None):
     state["preprints"] = {d: p for d, p in state["preprints"].items()
                           if "1" not in p["versions"] or p["versions"]["1"].get("date", "") >= year_start}
     identifiers = sorted(set(state["published"]) | set(state["preprints"]))
-    targets = identifiers if citations else [d for d in identifiers if d not in state["openalex"]]
+    targets = [d for d in identifiers if d not in state["openalex"] or
+               (citations and (sync_upgrade or mode in {"repair", "backfill", "citations"} or state["openalex"][d].get("checked_at", "")[:10] != end))]
     report = source_report("openalex", state["sources"].get("openalex", {}), stamp, year_start, end)
     report["requested_dois"] = len(targets)
     if targets:
@@ -277,6 +301,7 @@ def run(mode="auto", root=ROOT, client=None):
             report["last_success"] = stamp
             if citations:
                 state["last_citations"] = stamp
+                state["openalex_sync_version"] = 2
         except (SourceError, ValueError) as error:
             report["status"] = "partial" if report["rows"] else "failed"
             report["errors"].append(str(error))

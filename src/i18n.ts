@@ -4,7 +4,7 @@ export const strings = {
     tagline: 'NEUROSCIENCE, IN VIEW', eyebrow: 'A clearer view of the literature',
     heading: 'Find your next', headingAccent: 'connection.',
     intro: 'Fresh ideas and influential papers across neuroscience. Explore the evidence, follow the original research.',
-    preprints: 'Preprints', published: 'Published', paper: 'papers', neuroscience: 'Neuroscience',
+    preprints: 'Preprints', published: 'Published', paper: 'papers', paperSingular: 'paper', journals: 'Journals', neuroscience: 'Neuroscience',
     search: 'Search titles, authors, keywords…', searchLabel: 'Search papers', window: 'Publication window', journal: 'Journal', topic: 'Topic', sort: 'Sort by',
     today: 'Today (UTC)', '7d':'Past 7 days', '30d':'Past 30 days', '3m':'Past 3 months', '6m':'Past 6 months', '1y':'Past year',
     accesses: 'Accesses', citations: 'Citations', newest: 'Newest', allJournals: 'All journals', allTopics: 'All topics', unknown: 'Unknown topic',
@@ -37,7 +37,7 @@ export const strings = {
   zh: {
     tagline:'神经科学，尽收眼底', eyebrow:'看清文献中的新进展', heading:'发现下一次', headingAccent:'连接。',
     intro:'汇聚神经科学新思路与有影响力的论文。查看数据依据，直达原始研究。',
-    preprints:'预印本', published:'已发表', paper:'篇论文', neuroscience:'神经科学',
+    preprints:'预印本', published:'已发表', paper:'篇论文', paperSingular:'篇论文', journals:'期刊', neuroscience:'神经科学',
     search:'搜索标题、作者、关键词…', searchLabel:'搜索论文', window:'发表时间', journal:'期刊', topic:'主题', sort:'排序方式',
     today:'今天（UTC）', '7d':'过去 7 天', '30d':'过去 30 天', '3m':'过去 3 个月', '6m':'过去 6 个月', '1y':'过去一年',
     accesses:'访问量', citations:'引用次数', newest:'最新发表', allJournals:'全部期刊', allTopics:'全部主题', unknown:'未知主题',

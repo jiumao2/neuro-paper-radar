@@ -55,6 +55,22 @@ test('last-good browser data survives refresh failure and fresh errors can recov
   await page.getByRole('button',{name:'Retry data refresh'}).click();await expect(page.locator('.paper')).toHaveCount(3);
 });
 
+test('malformed HTTP200 never replaces the last-good snapshot',async({page})=>{
+  await page.goto('./');await expect(page.locator('.paper')).toHaveCount(3);
+  const malformed={...fixture,papers:fixture.papers.map(p=>({...p,versions:undefined,classification:undefined})),coverage:{...fixture.coverage,by_journal:undefined}};
+  await page.route('**/data/papers.json',route=>route.fulfill({json:malformed}));
+  await page.reload();await expect(page.locator('.paper')).toHaveCount(3);await expect(page.locator('.error-notice')).toContainText('last-good snapshot');
+  await page.route('**/data/papers.json',route=>route.fulfill({status:503,body:'offline'}));
+  await page.reload();await expect(page.locator('.paper')).toHaveCount(3);
+});
+
+test('a throwing localStorage property getter still allows startup and locale changes',async({page})=>{
+  await page.addInitScript(()=>{Object.defineProperty(window,'localStorage',{get(){throw new DOMException('Denied','SecurityError');}});});
+  await page.goto('./');await expect(page.locator('.paper')).toHaveCount(3);
+  await page.getByRole('button',{name:'中文',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('lang','zh-CN');
+  await page.getByRole('button',{name:'English',exact:true}).click();await expect(page.locator('html')).toHaveAttribute('lang','en');
+});
+
 test('partial and empty snapshots are explicit, desktop/mobile have no horizontal overflow',async({page})=>{
   await page.route('**/data/papers.json',route=>route.fulfill({json:{...fixture,sources:[{...fixture.sources[0],status:'failed',errors:['Official API temporarily unavailable']}]}}));
   await page.goto('./');await expect(page.locator('.partial-notice')).toBeVisible();

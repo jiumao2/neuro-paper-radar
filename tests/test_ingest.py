@@ -10,8 +10,8 @@ from pathlib import Path
 from ingest.http import Client, SourceError, retry_delay
 from ingest.model import (attach_openalex, biorxiv_paper, crossref_paper, doi, exact_date,
                           metric, normalize_work, subtract_months, validate_paper)
-from ingest.readership import ApprovedReadershipQueue, validate_import
-from ingest.refresh import atomic_bytes, collect_biorxiv, make_snapshot
+from ingest.readership import ApprovedReadershipQueue, validate_import, validated_imports
+from ingest.refresh import atomic_bytes, collect_biorxiv, make_snapshot, refresh_openalex
 
 CONFIG = json.loads((Path(__file__).parents[1] / 'config/sources.json').read_text())
 STAMP = '2026-10-10T12:00:00Z'
@@ -83,6 +83,36 @@ class ModelTests(unittest.TestCase):
 
 
 class RefreshTests(unittest.TestCase):
+    def test_daily_alias_updates_use_canonical_doi(self):
+        alias='10.64898/preprint';canonical='10.1038/published'
+        old=normalize_work({'id':'https://openalex.org/W123','doi':canonical,'cited_by_count':1,'topics':[]},'2026-10-09T12:00:00Z')
+        cache={alias:old}
+        topic={'id':'https://openalex.org/T123','display_name':'New topic','score':.9,'field':{'id':'https://openalex.org/fields/28'}}
+        class FakeClient:
+            def get(self,url):
+                self_test.assertIn('10.1038%2Fpublished',url)
+                return {'results':[{'id':'https://openalex.org/W123','doi':canonical,'cited_by_count':8,'topics':[topic]}]}
+        self_test=self;report={'rows':0}
+        refresh_openalex(FakeClient(),[alias],cache,STAMP,report)
+        self.assertEqual(cache[alias]['citations']['value'],8)
+        self.assertEqual(cache[alias]['topics'][0]['name'],'New topic')
+        self.assertEqual(cache[alias]['citations']['observed_at'],STAMP)
+
+    def test_singleton_404_is_retried_after_indexing_delay(self):
+        identifier='10.64898/alias';cache={}
+        class FakeClient:
+            def __init__(self,indexed=False): self.indexed=indexed;self.singletons=0
+            def get(self,url):
+                if '/works?' in url:return {'results':[]}
+                self.singletons+=1
+                return {'id':'https://openalex.org/W456','doi':'10.1038/canonical','cited_by_count':5,'topics':[]} if self.indexed else {'_not_found':True}
+        first=FakeClient();refresh_openalex(first,[identifier],cache,'2026-10-01T12:00:00Z',{'rows':0})
+        self.assertTrue(cache[identifier]['_not_found']);self.assertEqual(first.singletons,1)
+        early=FakeClient(True);refresh_openalex(early,[identifier],cache,'2026-10-02T12:00:00Z',{'rows':0})
+        self.assertEqual(early.singletons,0)
+        later=FakeClient(True);refresh_openalex(later,[identifier],cache,'2026-10-09T12:00:00Z',{'rows':0})
+        self.assertEqual(later.singletons,1);self.assertEqual(cache[identifier]['citations']['value'],5)
+
     def test_actual_biorxiv_page_size(self):
         rows=[{**bio(),'doi':f'10.64898/fixture.{i}'} for i in range(4)]
         class FakeClient:
@@ -135,6 +165,9 @@ class ReadershipTests(unittest.TestCase):
         with self.assertRaises(ValueError): validate_import({**row,'value':True},[provider])
         with self.assertRaises(ValueError): validate_import({**row,'aggregation':'window'},[provider])
         with self.assertRaises(ValueError): ApprovedReadershipQueue({**provider,'enabled':False},lambda _:None)
+        later={**row,'observed_at':'2020-01-02T00:00:00Z','value':3}
+        self.assertEqual(validated_imports([row,later,row],[provider])[row['doi']]['value'],3)
+        with self.assertRaises(ValueError): validate_import({**row,'value':None},[provider])
 
 
 if __name__=='__main__': unittest.main()

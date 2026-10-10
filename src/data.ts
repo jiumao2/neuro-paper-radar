@@ -1,13 +1,44 @@
 import type { Snapshot } from './types';
 
 export function validSnapshot(value: unknown): value is Snapshot {
-  if (!value || typeof value !== 'object') return false;
-  const d = value as Snapshot;
-  return d.schema_version === 1 && Array.isArray(d.papers) && !!d.coverage && d.coverage.total === d.papers.length
-    && Number.isFinite(Date.parse(d.generated_at)) && Array.isArray(d.sources) && !!d.schedule
-    && d.papers.every(p => !!p.title && /^10\.\d{4,9}\//.test(p.doi) && /^\d{4}-\d{2}-\d{2}$/.test(p.date)
-      && Array.isArray(p.authors) && Array.isArray(p.topics) && Array.isArray(p.provenance)
-      && [p.accesses?.value,p.citations?.value].every(n => n === null || (Number.isSafeInteger(n) && n! >= 0)));
+  const object = (v: unknown): v is Record<string,unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+  const text = (v: unknown): v is string => typeof v === 'string';
+  const count = (v: unknown): v is number => typeof v === 'number' && Number.isSafeInteger(v) && v >= 0;
+  const texts = (v: unknown) => Array.isArray(v) && v.every(text);
+  const timestamp = (v: unknown) => text(v) && /(?:Z|[+-]\d{2}:\d{2})$/.test(v) && Number.isFinite(Date.parse(v));
+  const day = (v: unknown) => text(v) && /^\d{4}-\d{2}-\d{2}$/.test(v) && Number.isFinite(Date.parse(v)) && new Date(v).toISOString().slice(0,10) === v;
+  const nullable = (v: unknown, test: (v:unknown)=>boolean) => v === null || test(v);
+  const doi = (v: unknown) => text(v) && /^10\.\d{4,9}\/[^\s<>"#?]+$/i.test(v);
+  const url = (v: unknown) => { try { if(!text(v)) return false;const u=new URL(v);return u.protocol==='https:' && !!u.hostname && !u.username && !u.password; } catch {return false;} };
+  const metric = (v: unknown) => object(v) && nullable(v.value,count) && nullable(v.source,text) && nullable(v.observed_at,timestamp)
+    && (v.value === null || (text(v.source) && !!v.source && timestamp(v.observed_at)))
+    && (v.work_id === undefined || (text(v.work_id) && /^https:\/\/openalex\.org\/W\d+$/.test(v.work_id)));
+  if(!object(value)) return false;
+  const d = value;
+  if(d.schema_version !== 1 || !timestamp(d.generated_at) || !Array.isArray(d.papers) || !object(d.coverage) || !Array.isArray(d.sources) || !object(d.schedule) || !object(d.readership)) return false;
+  const c=d.coverage,s=d.schedule;
+  if(!['total','preprints','published','accesses','citations','topics','abstracts'].every(k=>count(c[k])) || c.total !== d.papers.length
+    || (c.preprints as number)+(c.published as number)!==c.total || !day(c.requested_start) || !day(c.requested_end)
+    || !nullable(c.oldest,day) || !nullable(c.newest,day) || !object(c.excluded) || !Object.values(c.excluded).every(count)
+    || !Array.isArray(c.by_journal) || !c.by_journal.every(j=>object(j) && text(j.id) && text(j.name) && count(j.count) && count(j.candidates) && nullable(j.oldest,day) && nullable(j.newest,day))) return false;
+  if(!count(s.metadata_hours) || !text(s.citations) || !text(s.repair) || !nullable(s.last_citations,timestamp) || !nullable(s.last_repair,timestamp)
+    || !text(d.readership.status) || !text(d.readership.reason) || d.readership.measured !== c.accesses) return false;
+  if(!d.sources.every(source=>object(source) && text(source.id) && ['ok','failed','partial','pending'].includes(String(source.status))
+    && timestamp(source.checked_at) && nullable(source.last_success,timestamp) && count(source.rows) && day(source.requested_start) && day(source.requested_end) && texts(source.errors))) return false;
+  const ids = new Set<string>();
+  return d.papers.every(p=>{
+    if(!object(p) || !doi(p.doi) || p.id!==p.doi || ids.has(p.id as string) || !text(p.title) || !p.title || !['preprint','published'].includes(String(p.kind))
+      || !texts(p.authors) || !day(p.date) || !text(p.date_source) || !text(p.journal_id) || !text(p.journal) || !timestamp(p.metadata_observed_at)
+      || p.article_url!=='https://doi.org/'+p.doi || !texts(p.keywords) || !nullable(p.related_doi,doi) || !nullable(p.abstract,text) || !nullable(p.abstract_license,text)
+      || (p.abstract && !['CC0-1.0','CC-BY-4.0','CC-BY-SA-4.0'].includes(String(p.abstract_license))) || !metric(p.accesses) || !metric(p.citations)
+      || !Array.isArray(p.versions) || !p.versions.every(v=>object(v) && count(v.version) && v.version>0 && day(v.date))
+      || (p.kind==='preprint' && !p.versions.some(v=>v.version===1 && v.date===p.date))
+      || !Array.isArray(p.topics) || !p.topics.every(topic=>object(topic) && text(topic.id) && /^https:\/\/openalex\.org\/T\d+$/.test(topic.id) && text(topic.name)
+        && typeof topic.score==='number' && Number.isFinite(topic.score) && topic.score>=0 && topic.score<=1 && nullable(topic.field_id,text) && text(topic.source) && typeof topic.automatic==='boolean')
+      || !object(p.classification) || !text(p.classification.method) || !(text(p.classification.evidence)||texts(p.classification.evidence)) || typeof p.classification.automatic!=='boolean'
+      || !Array.isArray(p.provenance) || !p.provenance.every(source=>object(source) && text(source.source) && url(source.url) && timestamp(source.observed_at) && text(source.license))) return false;
+    ids.add(p.id as string);return true;
+  });
 }
 
 async function cache(mode: 'read' | 'write', snapshot?: Snapshot): Promise<Snapshot | null> {
