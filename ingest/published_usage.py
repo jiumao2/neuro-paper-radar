@@ -5,7 +5,7 @@ import re
 import urllib.parse
 from datetime import datetime, timezone, timedelta
 
-from .http import SourceError
+from .http import SourceError, REFRESH_CACHE_TTL
 from .model import base_paper, clean_text, doi, exact_date, metric, timestamp_valid, attach_openalex
 
 PLOS_POLICY = "https://api.plos.org/api-display-policy/"
@@ -178,9 +178,9 @@ def refresh_elife(client,state,config,stamp,start,end,limit=350):
                 "source":"eLife version history","url":f"https://api.elifesciences.org/articles/{article_id}/versions",
                 "observed_at":cached["checked_at"],"license":"eLife public API reuse"}]
         observed = paper["accesses"].get("observed_at")
-        if observed and datetime.fromisoformat(stamp.replace("Z","+00:00"))-datetime.fromisoformat(observed.replace("Z","+00:00")) < timedelta(hours=6):
+        if observed and datetime.fromisoformat(stamp.replace("Z","+00:00"))-datetime.fromisoformat(observed.replace("Z","+00:00")) < REFRESH_CACHE_TTL:
             continue
-        history_ttl = timedelta(days=7) if cached and cached["vor_date"] else timedelta(hours=6)
+        history_ttl = timedelta(days=7) if cached and cached["vor_date"] else REFRESH_CACHE_TTL
         history_due = not cached or datetime.fromisoformat(stamp.replace("Z","+00:00"))-datetime.fromisoformat(cached["checked_at"].replace("Z","+00:00")) >= history_ttl
         if cached and not cached["vor_date"] and not history_due:
             report["reviewed_preprint_only"] += 1

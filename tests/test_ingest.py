@@ -5,6 +5,7 @@ import json
 import tempfile
 import unittest
 import urllib.error
+from unittest.mock import patch
 from datetime import date, datetime, timezone
 from pathlib import Path
 
@@ -84,6 +85,31 @@ class ModelTests(unittest.TestCase):
 
 
 class RefreshTests(unittest.TestCase):
+    def test_six_hour_schedule_refreshes_after_collection_time_but_deduplicates_rapid_reruns(self):
+        scheduled=datetime(2026,10,10,6,17,tzinfo=timezone.utc)
+        for previous,expected_call in [('2026-10-10T00:32:00Z',True),('2026-10-10T06:10:00Z',False)]:
+            with self.subTest(previous=previous),tempfile.TemporaryDirectory() as directory:
+                root=Path(directory);(root/'config').mkdir();(root/'data').mkdir()
+                config={**CONFIG,'journals':[]}
+                (root/'config/sources.json').write_text(json.dumps(config))
+                record=bio();identifier=record['doi']
+                state={'version':1,'preprints':{identifier:{'versions':{'1':record},'observed_at':previous}},
+                       'published':{},'openalex':{identifier:{'_not_found':True,'checked_at':previous}},
+                       'openalex_sync_version':2,'last_citations':'2026-10-10T00:00:00Z','last_repair':previous,
+                       'sources':{'biorxiv':{'status':'ok','last_full_success':previous,'last_success':previous,'requested_end':'2026-10-10'}}}
+                (root/'data/state.json.gz').write_bytes(gzip.compress(json.dumps(state).encode()))
+                class API:
+                    requests=0
+                    def __init__(self):self.urls=[]
+                    def get(self,url):
+                        self.urls.append(url)
+                        raise SourceError('Fixture source unavailable; retain last-good data')
+                client=API()
+                with patch('ingest.refresh.datetime',wraps=datetime) as clock:
+                    clock.now.return_value=scheduled
+                    run('auto',root,client)
+                self.assertEqual(any('api.biorxiv.org' in url for url in client.urls),expected_call)
+
     def test_daily_alias_updates_use_canonical_doi(self):
         alias='10.64898/preprint';canonical='10.1038/published'
         old=normalize_work({'id':'https://openalex.org/W123','doi':canonical,'cited_by_count':1,'topics':[]},'2026-10-09T12:00:00Z')

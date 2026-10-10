@@ -48,6 +48,8 @@ python -m ingest.refresh --mode backfill
 
 共享 API 客户端在 30 分钟时间预算后停止发起新请求，计入限流等待与重试。在工作流 40 分钟期限前验证并保存已成功获取的部分记录；未完成任务与陈旧来源会明确标记，并在后续刷新继续处理。
 
+近期元数据、eLife 指标和未发现正式出版版本的 eLife 历史缓存五小时。这可以避免短时间重复刷新，同时为采集耗时和调度延迟留出余量，使下一次六小时计划任务按期更新。
+
 ## 自动化与部署
 
 GitHub Pages 的来源设为 **GitHub Actions**。[验证与部署](.github/workflows/verify-deploy.yml) 执行 Python 测试、数据验证、TypeScript、lint、单元测试、桌面与手机浏览器流程及无障碍检查，然后构建并部署。不会部署空的初始化快照。

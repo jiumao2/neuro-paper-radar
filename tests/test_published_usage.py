@@ -168,6 +168,22 @@ class PublishedUsageTests(unittest.TestCase):
         refresh_elife(Failing(),state,CONFIG,'2026-10-11T19:00:00Z','2025-10-10','2026-10-11')
         self.assertEqual(p['accesses'],before);self.assertEqual(state['sources']['elife-api']['status'],'partial')
 
+    def test_elife_metrics_refresh_on_next_six_hour_tick_and_skip_rapid_reruns(self):
+        p=elife_paper();state={'published':{p['id']:p},'openalex':{p['id']:work()},'sources':{}}
+        calls=[]
+        class API:
+            def get(self,url):
+                calls.append(url)
+                return history() if url.endswith('/versions') else {'totalValue':27 if '/downloads?' in url else 607}
+        refresh_elife(API(),state,CONFIG,STAMP,'2025-10-10','2026-10-10')
+        calls.clear()
+        refresh_elife(API(),state,CONFIG,'2026-10-10T19:10:00Z','2025-10-10','2026-10-10')
+        self.assertEqual(calls,[])
+        refresh_elife(API(),state,CONFIG,'2026-10-11T00:17:00Z','2025-10-11','2026-10-11')
+        self.assertEqual(len(calls),2)
+        self.assertTrue(all('/metrics/' in url for url in calls))
+        self.assertEqual(p['accesses']['observed_at'],'2026-10-11T00:17:00Z')
+
     def test_reviewed_preprint_only_is_excluded_from_published(self):
         p=elife_paper();state={'published':{p['id']:p},'openalex':{p['id']:work()},'sources':{},'preprints':{}}
         class API:

@@ -12,7 +12,7 @@ from collections import Counter
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
-from .http import Client, SourceError
+from .http import Client, SourceError, REFRESH_CACHE_TTL
 from .model import (OPEN_ABSTRACT_LICENSES, attach_openalex, biorxiv_paper, crossref_paper,
                     doi, exact_date, normalize_work, subtract_months, validate_snapshot)
 from .readership import validated_imports
@@ -294,7 +294,7 @@ def run(mode="auto", root=ROOT, client=None):
             full_due = not full_success or date.fromisoformat(full_success[:10]).isocalendar()[:2] != today.isocalendar()[:2]
             last_success = previous.get("last_success")
             schema_current = not (journal and journal.get("metadata_api")=="plos") or previous.get("source_schema_version")==2
-            if mode=="auto" and schema_current and previous.get("status")=="ok" and full_success and last_success and previous.get("requested_end")==end and not (repair and full_due) and datetime.now(timezone.utc)-datetime.fromisoformat(last_success.replace("Z","+00:00")) < timedelta(hours=6):
+            if mode=="auto" and schema_current and previous.get("status")=="ok" and full_success and last_success and previous.get("requested_end")==end and not (repair and full_due) and datetime.now(timezone.utc)-datetime.fromisoformat(last_success.replace("Z","+00:00")) < REFRESH_CACHE_TTL:
                 print(json.dumps({"source":name,"cached":True,"last_success":last_success}),flush=True)
                 continue  # Code deploys/queue repair do not multiply recent successful metadata calls.
             source_start = year_start if not full_success or (journal and journal.get("metadata_api")=="plos") or mode in {"repair", "backfill"} or (repair and full_due) else (today - timedelta(days=8)).isoformat()

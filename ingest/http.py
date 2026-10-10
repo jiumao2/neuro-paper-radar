@@ -7,10 +7,13 @@ import re
 import urllib.error
 import urllib.parse
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from email.utils import parsedate_to_datetime
 
 ALLOWED_HOSTS = {"api.biorxiv.org", "api.crossref.org", "api.openalex.org", "api.github.com", "raw.githubusercontent.com", "api.plos.org", "api.elifesciences.org"}
+# A six-hour schedule needs room for collection time and scheduling jitter.
+# Caching for six hours after completion would skip the next scheduled pass.
+REFRESH_CACHE_TTL = timedelta(hours=5)
 
 
 class SourceError(RuntimeError):

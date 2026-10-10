@@ -52,6 +52,8 @@ The public snapshot is `public/data/papers.json`; the exact coverage report is [
 
 The shared API client stops new requests after a 30-minute time budget, including rate-limit waits and retries. Successful partial records are validated and persisted before the 40-minute job deadline; deferred work and stale sources remain explicit and resume in later refreshes.
 
+Recent metadata, eLife metrics, and negative eLife histories are cached for five hours. This deduplicates rapid reruns while leaving collection time and scheduling slack before the next six-hour scheduled refresh.
+
 ## Automation and deployment
 
 GitHub Pages uses **GitHub Actions** as its source. [Verify and deploy](.github/workflows/verify-deploy.yml) checks Python tests, data validity, TypeScript, lint, unit tests, browser flows/accessibility on desktop and mobile, then builds and deploys. An empty bootstrap snapshot is not deployed.
