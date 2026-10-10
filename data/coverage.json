@@ -1,0 +1,219 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-10T18:13:28Z",
+  "coverage": {
+    "preprints": 9835,
+    "published": 2098,
+    "total": 11933,
+    "accesses": 0,
+    "citations": 11157,
+    "topics": 11123,
+    "abstracts": 3250,
+    "requested_start": "2025-10-10",
+    "requested_end": "2026-10-10",
+    "excluded": {
+      "preprint_v1_unverified": 1708,
+      "non_neuroscience_or_unknown_topics": 17840
+    },
+    "oldest": "2025-10-10",
+    "newest": "2026-10-10",
+    "by_journal": [
+      {
+        "id": "nature",
+        "name": "Nature",
+        "issns": [
+          "0028-0836",
+          "1476-4687"
+        ],
+        "neuroscience_only": false,
+        "count": 222,
+        "candidates": 4367,
+        "oldest": "2025-10-15",
+        "newest": "2026-10-09"
+      },
+      {
+        "id": "nature-neuroscience",
+        "name": "Nature Neuroscience",
+        "issns": [
+          "1097-6256",
+          "1546-1726"
+        ],
+        "neuroscience_only": true,
+        "count": 395,
+        "candidates": 395,
+        "oldest": "2025-10-13",
+        "newest": "2026-10-08"
+      },
+      {
+        "id": "nature-methods",
+        "name": "Nature Methods",
+        "issns": [
+          "1548-7091",
+          "1548-7105"
+        ],
+        "neuroscience_only": false,
+        "count": 28,
+        "candidates": 398,
+        "oldest": "2025-11-06",
+        "newest": "2026-10-07"
+      },
+      {
+        "id": "nature-communications",
+        "name": "Nature Communications",
+        "issns": [
+          "2041-1723"
+        ],
+        "neuroscience_only": false,
+        "count": 736,
+        "candidates": 14061,
+        "oldest": "2025-10-13",
+        "newest": "2026-10-09"
+      },
+      {
+        "id": "journal-of-neuroscience",
+        "name": "Journal of Neuroscience",
+        "issns": [
+          "0270-6474",
+          "1529-2401"
+        ],
+        "neuroscience_only": true,
+        "count": 717,
+        "candidates": 717,
+        "oldest": "2025-10-13",
+        "newest": "2026-10-09"
+      }
+    ]
+  },
+  "sources": [
+    {
+      "id": "biorxiv",
+      "status": "ok",
+      "checked_at": "2026-10-10T18:13:28Z",
+      "last_success": "2026-10-10T18:13:28Z",
+      "last_full_success": "2026-10-10T18:13:28Z",
+      "requested_start": "2025-10-10",
+      "requested_end": "2026-10-10",
+      "rows": 14595,
+      "excluded": {
+        "unresolved_v1": 1708
+      },
+      "errors": [],
+      "pages": 487
+    },
+    {
+      "id": "nature",
+      "status": "ok",
+      "checked_at": "2026-10-10T18:13:28Z",
+      "last_success": "2026-10-10T18:13:28Z",
+      "last_full_success": "2026-10-10T18:13:28Z",
+      "requested_start": "2025-10-10",
+      "requested_end": "2026-10-10",
+      "rows": 4367,
+      "excluded": {},
+      "errors": [],
+      "api_total": 4367
+    },
+    {
+      "id": "nature-neuroscience",
+      "status": "ok",
+      "checked_at": "2026-10-10T18:13:28Z",
+      "last_success": "2026-10-10T18:13:28Z",
+      "last_full_success": "2026-10-10T18:13:28Z",
+      "requested_start": "2025-10-10",
+      "requested_end": "2026-10-10",
+      "rows": 395,
+      "excluded": {},
+      "errors": [],
+      "api_total": 395
+    },
+    {
+      "id": "nature-methods",
+      "status": "ok",
+      "checked_at": "2026-10-10T18:13:28Z",
+      "last_success": "2026-10-10T18:13:28Z",
+      "last_full_success": "2026-10-10T18:13:28Z",
+      "requested_start": "2025-10-10",
+      "requested_end": "2026-10-10",
+      "rows": 398,
+      "excluded": {},
+      "errors": [],
+      "api_total": 398
+    },
+    {
+      "id": "nature-communications",
+      "status": "ok",
+      "checked_at": "2026-10-10T18:13:28Z",
+      "last_success": "2026-10-10T18:13:28Z",
+      "last_full_success": "2026-10-10T18:13:28Z",
+      "requested_start": "2025-10-10",
+      "requested_end": "2026-10-10",
+      "rows": 14061,
+      "excluded": {},
+      "errors": [],
+      "api_total": 14061
+    },
+    {
+      "id": "journal-of-neuroscience",
+      "status": "ok",
+      "checked_at": "2026-10-10T18:13:28Z",
+      "last_success": "2026-10-10T18:13:28Z",
+      "last_full_success": "2026-10-10T18:13:28Z",
+      "requested_start": "2025-10-10",
+      "requested_end": "2026-10-10",
+      "rows": 717,
+      "excluded": {},
+      "errors": [],
+      "api_total": 717
+    },
+    {
+      "id": "openalex",
+      "status": "ok",
+      "checked_at": "2026-10-10T18:13:28Z",
+      "last_success": "2026-10-10T18:13:28Z",
+      "last_full_success": null,
+      "requested_start": "2025-10-10",
+      "requested_end": "2026-10-10",
+      "rows": 31646,
+      "excluded": {},
+      "errors": [],
+      "requested_dois": 31481,
+      "alias_lookups": 75,
+      "unmatched": 31481,
+      "aliases_deferred": 1316
+    }
+  ],
+  "readership": {
+    "status": "unavailable",
+    "measured": 0,
+    "reason": "No approved per-paper publisher-access feed is configured",
+    "disabled_adapters": [
+      {
+        "id": "nature-accesses",
+        "enabled": false,
+        "reason": "No permitted automated feed; metrics paths disallowed and automated journal access restricted."
+      },
+      {
+        "id": "jneurosci-usage",
+        "enabled": false,
+        "reason": "Systematic collection and republication permission not established."
+      },
+      {
+        "id": "biorxiv-per-paper-usage",
+        "enabled": false,
+        "reason": "Official usage API is site-wide; per-paper scraping permission not established."
+      },
+      {
+        "id": "altmetric",
+        "enabled": false,
+        "reason": "Requires a key and display/republication authorization; attention is distinct from accesses."
+      }
+    ]
+  },
+  "schedule": {
+    "metadata_hours": 6,
+    "citations": "daily",
+    "repair": "weekly",
+    "last_citations": "2026-10-10T18:13:28Z",
+    "last_repair": "2026-10-10T18:13:28Z"
+  }
+}
