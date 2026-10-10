@@ -63,3 +63,5 @@ Date windows default to **Past 30 days**. Today is a UTC calendar day; past 7/30
 See [source policies and limitations](docs/SOURCES.md) for classification, metrics, licensing, and permitted adapter requirements. Contributions must preserve these constraints; project instructions are in [AGENTS.md](AGENTS.md).
 
 The published feed includes publisher-classified `journal-article` records and can contain corrections, commentary, or editorial conversations. It is not restricted to original research articles.
+
+[Official provider contracts](.github/workflows/provider-contract.yml) perform four bounded read-only API checks after provider code changes or manual dispatch, with no independent schedule. Production refresh live QA requires actual readership measurements for each of the four added journals.

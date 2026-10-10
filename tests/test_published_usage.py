@@ -63,6 +63,11 @@ class PublishedUsageTests(unittest.TestCase):
         self.assertIn('/Neuroscience/',p['publisher_categories'][0])
         self.assertIsNone(plos_paper({**real_shape,'subject':['/Medicine/Neuroscience-adjacent/Cancer']},PLOS,STAMP))
         self.assertIsNone(plos_paper({**real_shape,'doc_type':['full','partial']},PLOS,STAMP))
+        # Real successful API response shape: scalar id/doc_type/eissn/date,
+        # DOI array and slash-separated stored taxonomy paths. No paper text copied.
+        live_shape={**row('10.1371/journal.pbio.3004057',0),'doi':['10.1371/journal.pbio.3004057'],
+                    'subject':['/Biology and life sciences/Neuroscience/Cognitive neuroscience/Reaction time']}
+        self.assertEqual(plos_paper(live_shape,PLOS,STAMP)['accesses']['value'],0)
 
     def test_elife_requests_negotiate_documented_vendor_media_types(self):
         requests=[]
@@ -173,6 +178,7 @@ class PublishedUsageTests(unittest.TestCase):
         snapshot=make_snapshot(state,CONFIG,STAMP,'2025-10-10','2026-10-10')
         self.assertEqual(snapshot['coverage']['published'],0)
         self.assertEqual(snapshot['coverage']['excluded']['elife_vor_unverified_or_reviewed_preprint'],1)
+        self.assertEqual(next(j for j in snapshot['coverage']['by_journal'] if j['id']=='elife')['candidates'],1)
 
     def test_more_than_350_fresh_negative_histories_do_not_starve_vor(self):
         p=elife_paper();state={'published':{p['id']:p},'openalex':{p['id']:work()},'sources':{},'elife_history':{}}

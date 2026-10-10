@@ -86,6 +86,7 @@ jobs:
       - run: npm ci && npx playwright install --with-deps chromium
       - env:
           QA_BASE_URL: ${{ needs.deploy.outputs.page_url }}
+          QA_REQUIRE_PUBLISHED_READERS: '1'
         run: node scripts/qa-live.mjs
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()

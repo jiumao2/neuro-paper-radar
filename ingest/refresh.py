@@ -223,18 +223,17 @@ def make_snapshot(state, config, stamp, start, end):
         papers.append(p)
     candidates = Counter()
     for original in state["published"].values():
-        if original["journal_id"] == "elife" and not original.get("elife_vor_verified"):
-            excluded["elife_vor_unverified_or_reviewed_preprint"] += 1
-            continue
         if not start <= original["date"] <= end:
             continue
         p = copy.deepcopy(original)
         candidates[p["journal_id"]] += 1
         work = state["openalex"].get(p["id"])
-        if attach_openalex(p, work if work and not work.get("_not_found") else None, config):
-            papers.append(p)
-        else:
+        if not attach_openalex(p, work if work and not work.get("_not_found") else None, config):
             excluded["non_neuroscience_or_unknown_topics"] += 1
+        elif p["journal_id"] == "elife" and not p.get("elife_vor_verified"):
+            excluded["elife_vor_unverified_or_reviewed_preprint"] += 1
+        else:
+            papers.append(p)
     for paper in papers:
         m = state.get("readership", {}).get(paper["id"]) or (state.get("reference_readership", {}).get(paper["id"]) if paper["kind"] == "preprint" else None)
         if m:

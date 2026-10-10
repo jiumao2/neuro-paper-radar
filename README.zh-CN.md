@@ -59,3 +59,5 @@ GitHub Pages 的来源设为 **GitHub Actions**。[验证与部署](.github/work
 分类规则、指标定义、许可与适配器要求见 [来源政策与限制](docs/SOURCES.md)，维护要求见 [AGENTS.md](AGENTS.md)。
 
 已发表列表按出版商登记的 `journal-article` 类型收录，可能包含更正、评论或编辑讨论，并非仅限原创研究论文。
+
+[官方接口结构检查](.github/workflows/provider-contract.yml) 仅在适配器修改或手动触发时执行四次有界只读请求，不另设定时任务。生产刷新后的在线验证要求四个新增期刊均有真实阅读量测量。

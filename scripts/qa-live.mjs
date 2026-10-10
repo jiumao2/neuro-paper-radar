@@ -13,6 +13,10 @@ try {
     const response=await page.goto(base,{waitUntil:'networkidle'});assert.equal(response.status(),200);
     const dataResponse=await context.request.get(new URL('data/papers.json',base).href);assert.equal(dataResponse.status(),200);
     const data=await dataResponse.json();assert.ok(data.coverage.total>0,'Actual production corpus is required');
+    if(process.env.QA_REQUIRE_PUBLISHED_READERS==='1'){
+      for(const id of ['elife','plos-biology','plos-computational-biology','plos-one'])
+        assert.ok(data.papers.some(p=>p.journal_id===id && p.accesses.value!==null && p.accesses.value>0),`${id} requires a positive verified real readership measurement`);
+    }
     let build=null;
     if(base.startsWith('https:')){
       const buildResponse=await context.request.get(new URL('build-info.json',base).href,{headers:{'Cache-Control':'no-cache'}});
