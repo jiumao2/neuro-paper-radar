@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T18:13:28Z",
+  "generated_at": "2026-10-10T18:30:42Z",
   "coverage": {
     "preprints": 9835,
     "published": 2098,
@@ -12,7 +12,7 @@
     "requested_start": "2025-10-10",
     "requested_end": "2026-10-10",
     "excluded": {
-      "preprint_v1_unverified": 1708,
+      "preprint_v1_unverified": 1676,
       "non_neuroscience_or_unknown_topics": 17840
     },
     "oldest": "2025-10-10",
@@ -88,104 +88,104 @@
     {
       "id": "biorxiv",
       "status": "ok",
-      "checked_at": "2026-10-10T18:13:28Z",
-      "last_success": "2026-10-10T18:13:28Z",
+      "checked_at": "2026-10-10T18:30:42Z",
+      "last_success": "2026-10-10T18:30:42Z",
       "last_full_success": "2026-10-10T18:13:28Z",
-      "requested_start": "2025-10-10",
+      "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
-      "rows": 14595,
+      "rows": 340,
       "excluded": {
-        "unresolved_v1": 1708
+        "unresolved_v1": 2
       },
       "errors": [],
-      "pages": 487
+      "pages": 12
     },
     {
       "id": "nature",
       "status": "ok",
-      "checked_at": "2026-10-10T18:13:28Z",
-      "last_success": "2026-10-10T18:13:28Z",
+      "checked_at": "2026-10-10T18:30:42Z",
+      "last_success": "2026-10-10T18:30:42Z",
       "last_full_success": "2026-10-10T18:13:28Z",
-      "requested_start": "2025-10-10",
+      "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
-      "rows": 4367,
+      "rows": 101,
       "excluded": {},
       "errors": [],
-      "api_total": 4367
+      "api_total": 101
     },
     {
       "id": "nature-neuroscience",
       "status": "ok",
-      "checked_at": "2026-10-10T18:13:28Z",
-      "last_success": "2026-10-10T18:13:28Z",
+      "checked_at": "2026-10-10T18:30:42Z",
+      "last_success": "2026-10-10T18:30:42Z",
       "last_full_success": "2026-10-10T18:13:28Z",
-      "requested_start": "2025-10-10",
+      "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
-      "rows": 395,
+      "rows": 6,
       "excluded": {},
       "errors": [],
-      "api_total": 395
+      "api_total": 6
     },
     {
       "id": "nature-methods",
       "status": "ok",
-      "checked_at": "2026-10-10T18:13:28Z",
-      "last_success": "2026-10-10T18:13:28Z",
+      "checked_at": "2026-10-10T18:30:42Z",
+      "last_success": "2026-10-10T18:30:42Z",
       "last_full_success": "2026-10-10T18:13:28Z",
-      "requested_start": "2025-10-10",
+      "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
-      "rows": 398,
+      "rows": 10,
       "excluded": {},
       "errors": [],
-      "api_total": 398
+      "api_total": 10
     },
     {
       "id": "nature-communications",
       "status": "ok",
-      "checked_at": "2026-10-10T18:13:28Z",
-      "last_success": "2026-10-10T18:13:28Z",
+      "checked_at": "2026-10-10T18:30:42Z",
+      "last_success": "2026-10-10T18:30:42Z",
       "last_full_success": "2026-10-10T18:13:28Z",
-      "requested_start": "2025-10-10",
+      "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
-      "rows": 14061,
+      "rows": 211,
       "excluded": {},
       "errors": [],
-      "api_total": 14061
+      "api_total": 211
     },
     {
       "id": "journal-of-neuroscience",
       "status": "ok",
-      "checked_at": "2026-10-10T18:13:28Z",
-      "last_success": "2026-10-10T18:13:28Z",
+      "checked_at": "2026-10-10T18:30:42Z",
+      "last_success": "2026-10-10T18:30:42Z",
       "last_full_success": "2026-10-10T18:13:28Z",
-      "requested_start": "2025-10-10",
+      "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
-      "rows": 717,
+      "rows": 11,
       "excluded": {},
       "errors": [],
-      "api_total": 717
+      "api_total": 11
     },
     {
       "id": "openalex",
       "status": "ok",
-      "checked_at": "2026-10-10T18:13:28Z",
-      "last_success": "2026-10-10T18:13:28Z",
+      "checked_at": "2026-10-10T18:30:42Z",
+      "last_success": "2026-10-10T18:30:42Z",
       "last_full_success": null,
       "requested_start": "2025-10-10",
       "requested_end": "2026-10-10",
-      "rows": 31646,
+      "rows": 31605,
       "excluded": {},
       "errors": [],
-      "requested_dois": 31481,
+      "requested_dois": 31449,
       "alias_lookups": 75,
-      "unmatched": 31481,
-      "aliases_deferred": 1316
+      "unmatched": 31449,
+      "aliases_deferred": 1240
     }
   ],
   "readership": {
     "status": "unavailable",
     "measured": 0,
-    "reason": "No approved per-paper publisher-access feed is configured",
+    "reason": "Only explicitly permitted publisher-access imports are enabled; coverage can be incomplete",
     "disabled_adapters": [
       {
         "id": "nature-accesses",
@@ -213,7 +213,7 @@
     "metadata_hours": 6,
     "citations": "daily",
     "repair": "weekly",
-    "last_citations": "2026-10-10T18:13:28Z",
+    "last_citations": "2026-10-10T18:30:42Z",
     "last_repair": "2026-10-10T18:13:28Z"
   }
 }
