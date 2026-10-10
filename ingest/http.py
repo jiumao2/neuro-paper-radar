@@ -70,7 +70,7 @@ class Client:
             self.last[host] = self.clock()
             request = urllib.request.Request(url, headers={
                 "User-Agent": "NeuroPaperRadar/1.0 (https://github.com/jiumao2/neuro-paper-radar)",
-                "Accept": "application/json",
+                "Accept": ("application/vnd.elife.article-history+json;version=2" if parsed.path.endswith("/versions") else "application/vnd.elife.metric-time-period+json;version=1") if host=="api.elifesciences.org" else "application/json",
             })
             try:
                 with self.opener(request, timeout=35) as response:

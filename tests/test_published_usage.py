@@ -55,6 +55,28 @@ class PublishedUsageTests(unittest.TestCase):
         for changes in ({'doc_type':'partial'},{'doc_partial_parent_id':'parent'},{'eissn':'0000-0000','pissn':None},{'subject':['Cancer']},{'publication_date':'2026-10'}):
             self.assertIsNone(plos_paper({**row(),**changes},PLOS,STAMP))
 
+    def test_plos_stored_taxonomy_paths_and_singleton_field_arrays(self):
+        real_shape={**row(),'doc_type':['full'],'subject':['/Biology and life sciences/Neuroscience/Neurophysiology/Neural signaling'],
+                    'publication_date':['2026-10-08T00:00:00Z'],'eissn':['1545-7885'],'id':None,'doi':['10.1371/journal.pbio.fixture']}
+        p=plos_paper(real_shape,PLOS,STAMP)
+        self.assertEqual(p['id'],'10.1371/journal.pbio.fixture')
+        self.assertIn('/Neuroscience/',p['publisher_categories'][0])
+        self.assertIsNone(plos_paper({**real_shape,'subject':['/Medicine/Neuroscience-adjacent/Cancer']},PLOS,STAMP))
+        self.assertIsNone(plos_paper({**real_shape,'doc_type':['full','partial']},PLOS,STAMP))
+
+    def test_elife_requests_negotiate_documented_vendor_media_types(self):
+        requests=[]
+        class Response:
+            def __enter__(self):return self
+            def __exit__(self,*args):pass
+            def read(self,n):return b'{}'
+        def open_request(request,**kwargs):requests.append(request);return Response()
+        client=Client(opener=open_request,sleeper=lambda n:None,clock=lambda:0)
+        client.get('https://api.elifesciences.org/articles/108246/versions')
+        client.get('https://api.elifesciences.org/metrics/article/108246/page-views?by=month&per-page=1')
+        self.assertEqual(requests[0].get_header('Accept'),'application/vnd.elife.article-history+json;version=2')
+        self.assertEqual(requests[1].get_header('Accept'),'application/vnd.elife.metric-time-period+json;version=1')
+
     def test_plos_actual_pagination_and_dedup_preserve_last_good(self):
         state={'published':{}}
         class Pages:

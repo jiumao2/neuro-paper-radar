@@ -22,15 +22,20 @@ def array(value):
 
 def plos_paper(row: dict, journal: dict, stamp: str) -> dict | None:
     """Reject partial document fragments and verify exact publisher ISSNs."""
-    if row.get("doc_type") != "full" or row.get("doc_partial_parent_id"):
+    if array(row.get("doc_type")) != ["full"] or row.get("doc_partial_parent_id"):
         return None
-    identifier = doi(row.get("id"))
+    identifiers = [doi(v) for v in array(row.get("doi")) + array(row.get("id"))]
+    identifier = next((v for v in identifiers if v),None)
     issns = set(array(row.get("eissn")) + array(row.get("pissn"))) & set(journal["issns"])
-    published = row.get("publication_date")
+    dates = array(row.get("publication_date"))
+    published = dates[0] if len(dates)==1 else None
     day = exact_date(published[:10]) if isinstance(published, str) and timestamp_valid(published) else None
     titles = array(row.get("title_display"))
     subjects = [clean_text(s) for s in array(row.get("subject"))]
-    if not identifier or not issns or not day or not titles or "Neuroscience" not in subjects:
+    # PLOS stores full slash-separated taxonomy paths; its query analyzer splits
+    # them into exact category segments. Keep the original paths as evidence.
+    neuroscience = any(part.strip().casefold()=="neuroscience" for subject in subjects for part in subject.split("/"))
+    if not identifier or not issns or not day or not titles or not neuroscience:
         return None
     p = base_paper(identifier, "published", titles[0], array(row.get("author_display")), day,
                    journal["id"], journal["name"], stamp, "PLOS publication_date (publisher API)")
@@ -56,7 +61,7 @@ def collect_plos(client, journal, start, end, state, stamp, report):
              'AND -doc_partial_parent_id:[* TO *] AND article_type:"Research Article" '
              f'AND publication_date:[{start}T00:00:00Z TO {end}T23:59:59Z]')
     while True:
-        params = {"q":query,"fl":"id,title_display,author_display,publication_date,eissn,pissn,subject,doc_type,doc_partial_parent_id,counter_total_all,counter_total_month,timestamp",
+        params = {"q":query,"fl":"id,doi,title_display,author_display,publication_date,eissn,pissn,subject,doc_type,doc_partial_parent_id,counter_total_all,counter_total_month,timestamp",
                   "sort":"publication_date desc,id asc","rows":100,"start":offset,"wt":"json"}
         payload = client.get("https://api.plos.org/search?" + urllib.parse.urlencode(params))
         response = payload.get("response", {})
@@ -91,6 +96,9 @@ def collect_plos(client, journal, start, end, state, stamp, report):
                 current["recent_30_days"] = recent
                 paper["accesses"] = current
             state["published"][paper["id"]] = paper
+        if not seen_dois:
+            report["schema_diagnostic"]={k:rows[0].get(k) for k in ("id","doi","doc_type","eissn","pissn","subject","publication_date")}
+            raise SourceError("PLOS nonempty page has no valid full neuroscience records; schema diagnostic retained")
         offset += len(rows)
         if offset >= total:
             break
@@ -98,6 +106,7 @@ def collect_plos(client, journal, start, end, state, stamp, report):
             raise SourceError("PLOS page budget reached; remaining rows deferred")
     report["pages"] = len(seen_pages)
     report["unique_dois"] = len(seen_dois)
+    report["source_schema_version"] = 2
 
 
 def elife_id(identifier: str) -> str | None:

@@ -294,7 +294,8 @@ def run(mode="auto", root=ROOT, client=None):
             full_success = previous.get("last_full_success")
             full_due = not full_success or date.fromisoformat(full_success[:10]).isocalendar()[:2] != today.isocalendar()[:2]
             last_success = previous.get("last_success")
-            if mode=="auto" and previous.get("status")=="ok" and full_success and last_success and previous.get("requested_end")==end and not (repair and full_due) and datetime.now(timezone.utc)-datetime.fromisoformat(last_success.replace("Z","+00:00")) < timedelta(hours=6):
+            schema_current = not (journal and journal.get("metadata_api")=="plos") or previous.get("source_schema_version")==2
+            if mode=="auto" and schema_current and previous.get("status")=="ok" and full_success and last_success and previous.get("requested_end")==end and not (repair and full_due) and datetime.now(timezone.utc)-datetime.fromisoformat(last_success.replace("Z","+00:00")) < timedelta(hours=6):
                 print(json.dumps({"source":name,"cached":True,"last_success":last_success}),flush=True)
                 continue  # Code deploys/queue repair do not multiply recent successful metadata calls.
             source_start = year_start if not full_success or (journal and journal.get("metadata_api")=="plos") or mode in {"repair", "backfill"} or (repair and full_due) else (today - timedelta(days=8)).isoformat()
