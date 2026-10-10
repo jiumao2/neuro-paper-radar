@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T19:24:17Z",
+  "generated_at": "2026-10-10T19:26:09Z",
   "coverage": {
     "preprints": 9835,
     "published": 2098,
@@ -247,7 +247,7 @@
     {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-10-10T19:24:17Z",
+      "checked_at": "2026-10-10T19:26:08Z",
       "last_success": "2026-10-10T19:05:32Z",
       "rows": 4605,
       "measured_upstream": 4450,
@@ -322,7 +322,7 @@
     {
       "id": "elife-api",
       "status": "failed",
-      "checked_at": "2026-10-10T19:24:17Z",
+      "checked_at": "2026-10-10T19:26:08Z",
       "last_success": null,
       "requested_start": "2025-10-10",
       "requested_end": "2026-10-10",
@@ -341,7 +341,7 @@
     "source": {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-10-10T19:24:17Z",
+      "checked_at": "2026-10-10T19:26:08Z",
       "last_success": "2026-10-10T19:05:32Z",
       "rows": 4605,
       "measured_upstream": 4450,
