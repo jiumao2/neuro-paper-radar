@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T18:40:20Z",
+  "generated_at": "2026-10-10T19:05:32Z",
   "coverage": {
     "preprints": 9835,
     "published": 2098,
     "total": 11933,
-    "accesses": 0,
+    "accesses": 4449,
     "citations": 11157,
     "topics": 11123,
     "abstracts": 3250,
@@ -88,8 +88,8 @@
     {
       "id": "biorxiv",
       "status": "ok",
-      "checked_at": "2026-10-10T18:39:26Z",
-      "last_success": "2026-10-10T18:40:09Z",
+      "checked_at": "2026-10-10T19:04:36Z",
+      "last_success": "2026-10-10T19:05:20Z",
       "last_full_success": "2026-10-10T18:13:28Z",
       "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
@@ -103,8 +103,8 @@
     {
       "id": "nature",
       "status": "ok",
-      "checked_at": "2026-10-10T18:40:09Z",
-      "last_success": "2026-10-10T18:40:09Z",
+      "checked_at": "2026-10-10T19:05:20Z",
+      "last_success": "2026-10-10T19:05:21Z",
       "last_full_success": "2026-10-10T18:13:28Z",
       "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
@@ -116,8 +116,8 @@
     {
       "id": "nature-neuroscience",
       "status": "ok",
-      "checked_at": "2026-10-10T18:40:09Z",
-      "last_success": "2026-10-10T18:40:10Z",
+      "checked_at": "2026-10-10T19:05:21Z",
+      "last_success": "2026-10-10T19:05:21Z",
       "last_full_success": "2026-10-10T18:13:28Z",
       "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
@@ -129,8 +129,8 @@
     {
       "id": "nature-methods",
       "status": "ok",
-      "checked_at": "2026-10-10T18:40:10Z",
-      "last_success": "2026-10-10T18:40:10Z",
+      "checked_at": "2026-10-10T19:05:21Z",
+      "last_success": "2026-10-10T19:05:22Z",
       "last_full_success": "2026-10-10T18:13:28Z",
       "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
@@ -142,8 +142,8 @@
     {
       "id": "nature-communications",
       "status": "ok",
-      "checked_at": "2026-10-10T18:40:10Z",
-      "last_success": "2026-10-10T18:40:12Z",
+      "checked_at": "2026-10-10T19:05:22Z",
+      "last_success": "2026-10-10T19:05:23Z",
       "last_full_success": "2026-10-10T18:13:28Z",
       "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
@@ -155,8 +155,8 @@
     {
       "id": "journal-of-neuroscience",
       "status": "ok",
-      "checked_at": "2026-10-10T18:40:12Z",
-      "last_success": "2026-10-10T18:40:12Z",
+      "checked_at": "2026-10-10T19:05:23Z",
+      "last_success": "2026-10-10T19:05:24Z",
       "last_full_success": "2026-10-10T18:13:28Z",
       "requested_start": "2026-10-02",
       "requested_end": "2026-10-10",
@@ -180,12 +180,40 @@
       "alias_lookups": 75,
       "unmatched": 1241,
       "aliases_deferred": 1240
+    },
+    {
+      "id": "biorxiv-top-numeric",
+      "status": "ok",
+      "checked_at": "2026-10-10T19:05:32Z",
+      "last_success": "2026-10-10T19:05:32Z",
+      "rows": 4605,
+      "measured_upstream": 4450,
+      "requested_start": "2026-05-01",
+      "requested_end": "2026-10-10",
+      "upstream_updated_at": "2026-10-10T17:17:00Z",
+      "source_commit": "a329dc20051d44ff28488f69fc1ac74b11b5a176",
+      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/a329dc20051d44ff28488f69fc1ac74b11b5a176/usage.json",
+      "errors": []
     }
   ],
   "readership": {
-    "status": "unavailable",
-    "measured": 0,
-    "reason": "Only explicitly permitted publisher-access imports are enabled; coverage can be incomplete",
+    "status": "partial",
+    "measured": 4449,
+    "reason": "Preprint reads are sums of available monthly full-text views and PDF downloads from an independent public snapshot; coverage and lifetime/version completeness are limited",
+    "source": {
+      "id": "biorxiv-top-numeric",
+      "status": "ok",
+      "checked_at": "2026-10-10T19:05:32Z",
+      "last_success": "2026-10-10T19:05:32Z",
+      "rows": 4605,
+      "measured_upstream": 4450,
+      "requested_start": "2026-05-01",
+      "requested_end": "2026-10-10",
+      "upstream_updated_at": "2026-10-10T17:17:00Z",
+      "source_commit": "a329dc20051d44ff28488f69fc1ac74b11b5a176",
+      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/a329dc20051d44ff28488f69fc1ac74b11b5a176/usage.json",
+      "errors": []
+    },
     "disabled_adapters": [
       {
         "id": "nature-accesses",
