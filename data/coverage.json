@@ -1,20 +1,20 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T19:26:09Z",
+  "generated_at": "2026-10-10T19:58:09Z",
   "coverage": {
     "preprints": 9835,
-    "published": 2098,
-    "total": 11933,
-    "accesses": 4449,
-    "citations": 11157,
-    "topics": 11123,
+    "published": 2950,
+    "total": 12785,
+    "accesses": 5301,
+    "citations": 12009,
+    "topics": 11975,
     "abstracts": 3250,
     "requested_start": "2025-10-10",
     "requested_end": "2026-10-10",
     "excluded": {
       "preprint_v1_unverified": 1676,
-      "non_neuroscience_or_unknown_topics": 17840,
-      "elife_vor_unverified_or_reviewed_preprint": 1137
+      "non_neuroscience_or_unknown_topics": 21485,
+      "elife_vor_unverified_or_reviewed_preprint": 822
     },
     "oldest": "2025-10-10",
     "newest": "2026-10-10",
@@ -95,11 +95,11 @@
           "2050-084X"
         ],
         "neuroscience_only": false,
-        "count": 0,
-        "candidates": 0,
-        "measured_accesses": 0,
-        "oldest": null,
-        "newest": null
+        "count": 315,
+        "candidates": 315,
+        "measured_accesses": 315,
+        "oldest": "2025-10-10",
+        "newest": "2026-10-09"
       },
       {
         "id": "plos-biology",
@@ -110,11 +110,11 @@
         ],
         "neuroscience_only": false,
         "metadata_api": "plos",
-        "count": 0,
-        "candidates": 0,
-        "measured_accesses": 0,
-        "oldest": null,
-        "newest": null
+        "count": 92,
+        "candidates": 126,
+        "measured_accesses": 92,
+        "oldest": "2025-10-13",
+        "newest": "2026-10-09"
       },
       {
         "id": "plos-computational-biology",
@@ -125,11 +125,11 @@
         ],
         "neuroscience_only": false,
         "metadata_api": "plos",
-        "count": 0,
-        "candidates": 0,
-        "measured_accesses": 0,
-        "oldest": null,
-        "newest": null
+        "count": 131,
+        "candidates": 294,
+        "measured_accesses": 131,
+        "oldest": "2025-10-10",
+        "newest": "2026-10-08"
       },
       {
         "id": "plos-one",
@@ -139,11 +139,11 @@
         ],
         "neuroscience_only": false,
         "metadata_api": "plos",
-        "count": 0,
-        "candidates": 0,
-        "measured_accesses": 0,
-        "oldest": null,
-        "newest": null
+        "count": 314,
+        "candidates": 3762,
+        "measured_accesses": 314,
+        "oldest": "2025-10-10",
+        "newest": "2026-10-09"
       }
     ]
   },
@@ -231,23 +231,23 @@
     {
       "id": "openalex",
       "status": "ok",
-      "checked_at": "2026-10-10T19:23:55Z",
-      "last_success": "2026-10-10T19:24:09Z",
+      "checked_at": "2026-10-10T19:41:25Z",
+      "last_success": "2026-10-10T19:42:14Z",
       "last_full_success": null,
       "requested_start": "2025-10-10",
       "requested_end": "2026-10-10",
-      "rows": 1141,
+      "rows": 4186,
       "excluded": {},
       "errors": [],
-      "requested_dois": 1137,
-      "alias_lookups": 3,
+      "requested_dois": 4182,
+      "alias_lookups": 6,
       "unmatched": 1241,
       "aliases_deferred": 0
     },
     {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-10-10T19:26:08Z",
+      "checked_at": "2026-10-10T19:42:23Z",
       "last_success": "2026-10-10T19:05:32Z",
       "rows": 4605,
       "measured_upstream": 4450,
@@ -274,74 +274,69 @@
     {
       "id": "plos-biology",
       "status": "ok",
-      "checked_at": "2026-10-10T19:15:26Z",
-      "last_success": "2026-10-10T19:15:39Z",
-      "last_full_success": "2026-10-10T19:15:39Z",
+      "checked_at": "2026-10-10T19:32:56Z",
+      "last_success": "2026-10-10T19:33:09Z",
+      "last_full_success": "2026-10-10T19:33:09Z",
       "requested_start": "2025-10-10",
       "requested_end": "2026-10-10",
       "rows": 126,
-      "excluded": {
-        "fragments_invalid_or_duplicate": 126
-      },
+      "excluded": {},
       "errors": [],
       "pages": 2,
-      "unique_dois": 0
+      "unique_dois": 126,
+      "source_schema_version": 2
     },
     {
       "id": "plos-computational-biology",
       "status": "ok",
-      "checked_at": "2026-10-10T19:15:39Z",
-      "last_success": "2026-10-10T19:16:15Z",
-      "last_full_success": "2026-10-10T19:16:15Z",
+      "checked_at": "2026-10-10T19:33:09Z",
+      "last_success": "2026-10-10T19:33:46Z",
+      "last_full_success": "2026-10-10T19:33:46Z",
       "requested_start": "2025-10-10",
       "requested_end": "2026-10-10",
       "rows": 294,
-      "excluded": {
-        "fragments_invalid_or_duplicate": 294
-      },
+      "excluded": {},
       "errors": [],
       "pages": 3,
-      "unique_dois": 0
+      "unique_dois": 294,
+      "source_schema_version": 2
     },
     {
       "id": "plos-one",
       "status": "ok",
-      "checked_at": "2026-10-10T19:16:15Z",
-      "last_success": "2026-10-10T19:23:55Z",
-      "last_full_success": "2026-10-10T19:23:55Z",
+      "checked_at": "2026-10-10T19:33:46Z",
+      "last_success": "2026-10-10T19:41:25Z",
+      "last_full_success": "2026-10-10T19:41:25Z",
       "requested_start": "2025-10-10",
       "requested_end": "2026-10-10",
       "rows": 3762,
-      "excluded": {
-        "fragments_invalid_or_duplicate": 3762
-      },
+      "excluded": {},
       "errors": [],
       "pages": 38,
-      "unique_dois": 0
+      "unique_dois": 3762,
+      "source_schema_version": 2
     },
     {
       "id": "elife-api",
-      "status": "failed",
-      "checked_at": "2026-10-10T19:26:08Z",
-      "last_success": null,
+      "status": "ok",
+      "checked_at": "2026-10-10T19:42:24Z",
+      "last_success": "2026-10-10T19:58:09Z",
       "requested_start": "2025-10-10",
       "requested_end": "2026-10-10",
-      "rows": 0,
-      "errors": [
-        "Official API returned HTTP 406"
-      ],
+      "rows": 315,
+      "errors": [],
       "reviewed_preprint_only": 0,
       "deferred": 0
     }
   ],
   "readership": {
     "status": "partial",
-    "measured": 4449,
+    "measured": 5301,
     "reason": "Partial raw readership: available bioRxiv monthly views+PDF facts; PLOS source-defined all-time views; eLife all-version page views. These sources count different events and windows",
     "source": {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-10-10T19:26:08Z",
+      "checked_at": "2026-10-10T19:42:23Z",
       "last_success": "2026-10-10T19:05:32Z",
       "rows": 4605,
       "measured_upstream": 4450,
