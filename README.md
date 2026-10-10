@@ -10,7 +10,9 @@ The project uses Python ingestion, a TypeScript static frontend, GitHub Actions,
 
 ## Metrics and publication dates
 
-The intended default is raw accesses descending, with citations (OpenAlex) and newest as alternatives. Missing metrics are distinct from measured zero. No permitted automated per-paper readership source has been established: the initial access column is unavailable and the access view transparently falls back to citations, then newest when no citation measurements exist. Cross-publisher raw access counts, when available, will not be fully comparable. No fabricated counts, publisher metrics scraping, or Altmetric feed is used.
+The default preprint view ranks real raw readership from the public [biorxiv-top numerical snapshot](https://github.com/RobertoDF/biorxiv-top/blob/data/usage.json): available monthly full-text views plus PDF downloads, with a pinned source commit and collection/retrieval timestamps. Only DOI-keyed numerical facts are reused; titles, authors, and publication dates come from our official metadata ingestion. Its recent cohort and reported months are partial, current-month counts are incomplete, and lifetime/all-version completeness is not verified. These are events, not unique readers. Publication-date filters select papers, not readership event dates.
+
+Preprints with a known related published DOI are hidden by default; a toggle includes them. A missing publication link does not prove a paper is unpublished. Citations (OpenAlex) and newest remain available. Missing metrics differ from source-reported zero and follow measured values without a rank. For a filtered view with no readership measurements, the app explicitly falls back to citations, then newest. Published readership is still unavailable for the original five journals; no restricted publisher scraping or Altmetric feed is used. Cross-source raw metrics are not fully comparable.
 
 Preprints use the first v1 posting date; published papers use a verified first online publication date, never deposit/ingestion dates. Revision histories and related published DOIs are retained. Topic classification is automatic and uncertainty is visible.
 

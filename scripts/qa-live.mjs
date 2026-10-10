@@ -20,9 +20,19 @@ try {
       if(process.env.QA_EXPECTED_COMMIT)assert.equal(build.commit,process.env.QA_EXPECTED_COMMIT);
     }
     await page.locator('#window').selectOption('1y');
-    const preprintCount=data.papers.filter(p=>p.kind==='preprint').length;
+    const preprints=data.papers.filter(p=>p.kind==='preprint'&&!p.related_doi);
+    const preprintCount=preprints.length;
     await expect(page.locator('.paper')).toHaveCount(Math.min(40,preprintCount),{timeout:30000});
     assert.equal(await page.locator('.coverage-notice').count(),1);
+    const measuredPreprints=preprints.filter(p=>p.accesses.value!==null).sort((a,b)=>b.accesses.value-a.accesses.value||b.date.localeCompare(a.date)||a.id.localeCompare(b.id));
+    if(measuredPreprints.length){
+      assert.equal(await page.locator('.paper-title').first().getAttribute('href'),'https://doi.org/'+measuredPreprints[0].doi);
+      await expect(page.locator('.sort-description')).toContainText('Readership');
+      await expect(page.locator('.reader-available')).toContainText(`${measuredPreprints.length}/${preprintCount}`);
+    }
+    await expect(page.locator('#hide-published')).toBeChecked();
+    await page.locator('#hide-published').uncheck();assert.match(page.url(),/include_published=1/);
+    await page.locator('#hide-published').check();
     if(preprintCount>40){await page.locator('[data-more]').click();assert.equal(await page.locator('.paper').count(),Math.min(80,preprintCount));}
     await page.locator('#window').selectOption('today');await page.locator('#window').selectOption('7d');
     await page.goBack();assert.equal(await page.locator('#window').inputValue(),'today');
@@ -50,7 +60,7 @@ try {
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
     assert.deepEqual(errors,[]);
     fs.mkdirSync('test-results',{recursive:true});await page.screenshot({path:`test-results/live-${name}.png`,fullPage:false});
-    evidence.push({device:name,http:response.status(),build_commit:build?.commit,build_workflow_run:build?.workflow_run,papers:data.coverage.total,preprints:data.coverage.preprints,published:data.coverage.published,data_generated_at:data.generated_at,journals:journalEvidence,console_errors:errors});
+    evidence.push({device:name,http:response.status(),build_commit:build?.commit,build_workflow_run:build?.workflow_run,papers:data.coverage.total,preprints:data.coverage.preprints,preprints_without_known_published_doi:preprintCount,measured_unlinked_preprints:measuredPreprints.length,top_read_preprint:measuredPreprints[0]?.doi,published:data.coverage.published,data_generated_at:data.generated_at,journals:journalEvidence,console_errors:errors});
     await context.close();
   }
   fs.writeFileSync('test-results/live-qa.json',JSON.stringify({url:base,checked_at:new Date().toISOString(),evidence},null,2)+'\n');

@@ -1,6 +1,6 @@
 import type { Filters, Paper, Sort, WindowKey } from './types';
 
-export const defaults: Filters = { kind: 'preprint', window: '30d', sort: 'accesses', journal: 'all', topic: 'all', query: '' };
+export const defaults: Filters = { kind: 'preprint', window: '30d', sort: 'accesses', journal: 'all', topic: 'all', query: '', hidePublished:true };
 export const journalIds = ['nature','nature-neuroscience','nature-methods','nature-communications','journal-of-neuroscience'];
 export const windows: WindowKey[] = ['today','7d','30d','3m','6m','1y'];
 export const sorts: Sort[] = ['accesses','citations','newest'];
@@ -28,6 +28,7 @@ export function filtered(papers: Paper[], filters: Filters, now = new Date()): P
   const range = dateWindow(filters.window, now);
   const words = normalizeSearch(filters.query.trim()).split(/\s+/).filter(Boolean);
   return papers.filter(p => p.kind === filters.kind && p.date >= range.start && p.date <= range.end
+    && (p.kind !== 'preprint' || !filters.hidePublished || !p.related_doi)
     && (filters.kind === 'preprint' || filters.journal === 'all' || p.journal_id === filters.journal)
     && (filters.topic === 'all' || (filters.topic === 'unknown' ? !p.topics.length : p.topics.some(t => t.id === filters.topic)))
     && words.every(word => normalizeSearch([p.title, ...p.authors, ...p.keywords, ...p.topics.map(t => t.name)].join(' ')).includes(word)));
@@ -72,11 +73,13 @@ export function readFilters(search: string): Filters {
   const topic = params.get('topic') || 'all';
   if (topic === 'unknown' || /^https:\/\/openalex\.org\/T\d+$/.test(topic)) result.topic = topic;
   result.query = (params.get('q') || '').slice(0, 150);
+  result.hidePublished = params.get('include_published') !== '1';
   return result;
 }
 
 export function filterQuery(filters: Filters): string {
   const p = new URLSearchParams();
+  if(!filters.hidePublished)p.set('include_published','1');
   for (const [key,value] of [['tab',filters.kind],['window',filters.window],['sort',filters.sort],['journal',filters.journal],['topic',filters.topic],['q',filters.query]]) {
     if (value) p.set(key,value);
   }

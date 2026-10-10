@@ -9,7 +9,7 @@ import urllib.request
 from datetime import datetime, timezone
 from email.utils import parsedate_to_datetime
 
-ALLOWED_HOSTS = {"api.biorxiv.org", "api.crossref.org", "api.openalex.org"}
+ALLOWED_HOSTS = {"api.biorxiv.org", "api.crossref.org", "api.openalex.org", "api.github.com", "raw.githubusercontent.com"}
 
 
 class SourceError(RuntimeError):
@@ -46,6 +46,10 @@ class Client:
         parsed = urllib.parse.urlsplit(url)
         if parsed.scheme != "https" or parsed.hostname not in ALLOWED_HOSTS or parsed.username:
             raise SourceError("Endpoint is not an approved official metadata API")
+        if parsed.hostname == "api.github.com" and parsed.path != "/repos/RobertoDF/biorxiv-top/git/ref/heads/data":
+            raise SourceError("Only the approved public numerical reference branch may be queried")
+        if parsed.hostname == "raw.githubusercontent.com" and not parsed.path.startswith("/RobertoDF/biorxiv-top/"):
+            raise SourceError("Only the approved public numerical reference snapshot may be fetched")
         host = parsed.hostname
         for attempt in range(3):
             if self.requests >= self.budget or (host == "api.openalex.org" and self.host_requests.get(host, 0) >= 700):

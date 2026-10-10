@@ -16,6 +16,7 @@ from .http import Client, SourceError
 from .model import (OPEN_ABSTRACT_LICENSES, attach_openalex, biorxiv_paper, crossref_paper,
                     doi, exact_date, normalize_work, subtract_months, validate_snapshot)
 from .readership import validated_imports
+from .biorxiv_usage import refresh_reference
 
 ROOT = Path(__file__).resolve().parents[1]
 BIO_FIELDS = {"doi", "title", "authors", "date", "version", "license", "category", "published", "server"}
@@ -225,8 +226,11 @@ def make_snapshot(state, config, stamp, start, end):
         else:
             excluded["non_neuroscience_or_unknown_topics"] += 1
     for paper in papers:
-        if paper["id"] in state.get("readership", {}):
-            paper["accesses"] = state["readership"][paper["id"]]
+        m = state.get("readership", {}).get(paper["id"]) or state.get("reference_readership", {}).get(paper["id"])
+        if m and paper["kind"] == "preprint":
+            paper["accesses"] = m
+            paper["provenance"].append({"source":m["source"],"url":m["permission_url"],"observed_at":m["observed_at"],
+                                        "license":"Public numerical usage facts; upstream code and paper text excluded"})
     papers.sort(key=lambda p: (p["date"], p["id"]), reverse=True)
     by_source = Counter(p["journal_id"] for p in papers)
     counts = {"preprints": sum(p["kind"] == "preprint" for p in papers),
@@ -244,7 +248,8 @@ def make_snapshot(state, config, stamp, start, end):
     return {"schema_version": 1, "generated_at": stamp, "papers": papers, "coverage": counts,
             "sources": list(state["sources"].values()),
             "readership": {"status": "partial" if counts["accesses"] else "unavailable", "measured": counts["accesses"],
-                           "reason": "Only explicitly permitted publisher-access imports are enabled; coverage can be incomplete",
+                           "reason": "Preprint reads are sums of available monthly full-text views and PDF downloads from an independent public snapshot; coverage and lifetime/version completeness are limited",
+                           "source": state["sources"].get("biorxiv-top-numeric"),
                            "disabled_adapters": config["disabled_adapters"]},
             "schedule": {"metadata_hours": 6, "citations": "daily", "repair": "weekly",
                          "last_citations": state.get("last_citations"), "last_repair": state.get("last_repair")}}
@@ -313,6 +318,7 @@ def run(mode="auto", root=ROOT, client=None):
     state["openalex"] = {d: w for d, w in state["openalex"].items() if d in identifiers}
     if "openalex" in state["sources"]:
         state["sources"]["openalex"]["unmatched"] = sum(state["openalex"].get(d, {"_not_found": True}).get("_not_found", False) for d in identifiers)
+    refresh_reference(client,state,config)
     snapshot = make_snapshot(state, config, stamp_now(), year_start, end)
     validate_snapshot(snapshot, config)
     # State and public snapshot are written only after validation; prior content survives invalid refreshes.

@@ -10,6 +10,8 @@ export interface Metric {
   scope?: string;
   definition?: string;
   permission_url?: string;
+  fulltext?: number; pdf?: number; upstream_fetched_date?: string | null; upstream_updated_at?: string;
+  source_commit?: string; source_url?: string; reported_months?: string[];
 }
 export interface Topic { id: string; name: string; score: number; field_id: string | null; source: string; automatic: boolean }
 export interface Paper {
@@ -27,7 +29,7 @@ export interface Snapshot {
   schema_version: 1; generated_at: string; papers: Paper[];
   coverage: { total: number; preprints: number; published: number; accesses: number; citations: number; topics: number; abstracts: number; requested_start: string; requested_end: string; oldest: string | null; newest: string | null; by_journal: JournalCoverage[]; excluded: Record<string, number> };
   sources: SourceStatus[];
-  readership: { status: string; measured: number; reason: string };
+  readership: { status: string; measured: number; reason: string; source?: SourceStatus & { source_url?:string;source_commit?:string;upstream_updated_at?:string } };
   schedule: { metadata_hours: number; citations: string; repair: string; last_citations: string | null; last_repair: string | null };
 }
-export interface Filters { kind: Kind; window: WindowKey; sort: Sort; journal: string; topic: string; query: string }
+export interface Filters { kind: Kind; window: WindowKey; sort: Sort; journal: string; topic: string; query: string; hidePublished: boolean }

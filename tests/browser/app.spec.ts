@@ -90,3 +90,16 @@ test('accessible controls and keyboard tab changes',async({page})=>{
   await expect(page.locator('#published-tab')).toHaveAttribute('aria-selected','true');
   await page.screenshot({path:`test-results/${test.info().project.name}-overview.png`,fullPage:true});
 });
+
+test('real-shaped monthly readership ranks by raw reads with explicit partial provenance',async({page})=>{
+  const measured={...fixture,papers:fixture.papers.map((p,i)=>({...p,accesses:i===0?{value:244,source:'biorxiv-top public numeric snapshot',observed_at:stamp,fulltext:34,pdf:210,upstream_fetched_date:today,upstream_updated_at:stamp,source_commit:'a329dc20051d44ff28488f69fc1ac74b11b5a176',source_url:'https://github.com/RobertoDF/biorxiv-top/blob/data/usage.json',definition:'Available monthly fulltext + PDF'}:p.accesses})),coverage:{...fixture.coverage,accesses:1},readership:{...fixture.readership,measured:1,source:{...fixture.sources[0],id:'biorxiv-top-numeric',source_commit:'a329dc20051d44ff28488f69fc1ac74b11b5a176',source_url:'https://github.com/RobertoDF/biorxiv-top/blob/data/usage.json',upstream_updated_at:stamp}}};
+  await page.route('**/data/papers.json',route=>route.fulfill({json:measured}));
+  await page.goto('./');await expect(page.locator('.paper')).toHaveCount(3);
+  await expect(page.locator('.sort-description')).toContainText('Readership');
+  await expect(page.locator('.paper').first().locator('.metric-value').first()).toHaveText('244');
+  await expect(page.locator('.reader-available')).toContainText('1/3 measured');
+  await page.locator('.paper').first().getByText('Sources & metrics',{exact:true}).click();
+  await expect(page.locator('.paper').first()).toContainText('34 full-text + 210 PDF');
+  await expect(page.locator('#hide-published')).toBeChecked();
+  await page.locator('#hide-published').uncheck();await expect(page).toHaveURL(/include_published=1/);
+});

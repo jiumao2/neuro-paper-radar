@@ -33,6 +33,10 @@ export const strings = {
     skip:'Skip to paper results', showMore:'Show more papers', showAllAuthors:'All authors', filterTopic:'Filter this topic',
     fallbackNewest:'No citation measurements in this view; newest remains available.',
     ok:'OK', failedStatus:'Failed', partialStatus:'Partial', pending:'Pending', show:'Showing',
+    reads:'Readership', readerTitle:'bioRxiv readership · partial coverage',
+    readerDescription:'Raw full-text views + PDF downloads summed over available monthly rows from the independent biorxiv-top public snapshot. Events, not unique readers; lifetime and version completeness are unverified. Current month is partial. Date filters select publication cohorts.',
+    measuredHere:'measured in this view', upstreamCollected:'Upstream collected through', sourceUpdated:'Source snapshot published', snapshotRetrieved:'Numeric snapshot retrieved',
+    hidePublished:'Hide preprints with a known published DOI', publicationUnknown:'No link does not confirm that a paper is unpublished.',
   },
   zh: {
     tagline:'神经科学，尽收眼底', eyebrow:'看清文献中的新进展', heading:'发现下一次', headingAccent:'连接。',
@@ -66,6 +70,10 @@ export const strings = {
     skip:'跳到论文列表', showMore:'显示更多论文', showAllAuthors:'全部作者', filterTopic:'按此主题筛选',
     fallbackNewest:'本视图没有引用测量，仍可按最新日期浏览。',
     ok:'正常', failedStatus:'失败', partialStatus:'部分', pending:'待采集', show:'当前显示',
+    reads:'阅读量', readerTitle:'bioRxiv 阅读量 · 覆盖不完整',
+    readerDescription:'按独立公开的 biorxiv-top 数字快照，将可用月份的全文浏览与 PDF 下载原始计数相加。统计阅读事件，并非独立读者；无法保证完整生命周期或版本覆盖。当前月份为部分数据，时间筛选选择发表日期人群。',
+    measuredHere:'本视图有测量值', upstreamCollected:'上游采集截至', sourceUpdated:'来源快照发布于', snapshotRetrieved:'数字快照读取于',
+    hidePublished:'隐藏已有明确已发表 DOI 的预印本', publicationUnknown:'缺少关联不等于确认尚未发表。',
   },
 } as const;
 export type StringKey = keyof typeof strings.en;

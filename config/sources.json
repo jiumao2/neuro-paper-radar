@@ -1,18 +1,82 @@
 {
   "journals": [
-    {"id":"nature","name":"Nature","issns":["0028-0836","1476-4687"],"neuroscience_only":false},
-    {"id":"nature-neuroscience","name":"Nature Neuroscience","issns":["1097-6256","1546-1726"],"neuroscience_only":true},
-    {"id":"nature-methods","name":"Nature Methods","issns":["1548-7091","1548-7105"],"neuroscience_only":false},
-    {"id":"nature-communications","name":"Nature Communications","issns":["2041-1723"],"neuroscience_only":false},
-    {"id":"journal-of-neuroscience","name":"Journal of Neuroscience","issns":["0270-6474","1529-2401"],"neuroscience_only":true}
+    {
+      "id": "nature",
+      "name": "Nature",
+      "issns": [
+        "0028-0836",
+        "1476-4687"
+      ],
+      "neuroscience_only": false
+    },
+    {
+      "id": "nature-neuroscience",
+      "name": "Nature Neuroscience",
+      "issns": [
+        "1097-6256",
+        "1546-1726"
+      ],
+      "neuroscience_only": true
+    },
+    {
+      "id": "nature-methods",
+      "name": "Nature Methods",
+      "issns": [
+        "1548-7091",
+        "1548-7105"
+      ],
+      "neuroscience_only": false
+    },
+    {
+      "id": "nature-communications",
+      "name": "Nature Communications",
+      "issns": [
+        "2041-1723"
+      ],
+      "neuroscience_only": false
+    },
+    {
+      "id": "journal-of-neuroscience",
+      "name": "Journal of Neuroscience",
+      "issns": [
+        "0270-6474",
+        "1529-2401"
+      ],
+      "neuroscience_only": true
+    }
   ],
-  "neuroscience_field_id":"https://openalex.org/fields/28",
-  "topic_min_score":0.35,
-  "readership_providers":[],
-  "disabled_adapters":[
-    {"id":"nature-accesses","enabled":false,"reason":"No permitted automated feed; metrics paths disallowed and automated journal access restricted."},
-    {"id":"jneurosci-usage","enabled":false,"reason":"Systematic collection and republication permission not established."},
-    {"id":"biorxiv-per-paper-usage","enabled":false,"reason":"Official usage API is site-wide; per-paper scraping permission not established."},
-    {"id":"altmetric","enabled":false,"reason":"Requires a key and display/republication authorization; attention is distinct from accesses."}
+  "neuroscience_field_id": "https://openalex.org/fields/28",
+  "topic_min_score": 0.35,
+  "readership_providers": [
+    {
+      "id": "biorxiv-top-numeric",
+      "name": "biorxiv-top public numeric snapshot",
+      "enabled": true,
+      "redistribution_allowed": true,
+      "permission_url": "https://github.com/RobertoDF/biorxiv-top/blob/data/usage.json",
+      "permission_basis": "User-authorized use of publicly published DOI-keyed numerical facts; no license for upstream code or expressive metadata is assumed."
+    }
+  ],
+  "disabled_adapters": [
+    {
+      "id": "nature-accesses",
+      "enabled": false,
+      "reason": "No permitted automated feed; metrics paths disallowed and automated journal access restricted."
+    },
+    {
+      "id": "jneurosci-usage",
+      "enabled": false,
+      "reason": "Systematic collection and republication permission not established."
+    },
+    {
+      "id": "biorxiv-per-paper-usage",
+      "enabled": false,
+      "reason": "Official usage API is site-wide; per-paper scraping permission not established."
+    },
+    {
+      "id": "altmetric",
+      "enabled": false,
+      "reason": "Requires a key and display/republication authorization; attention is distinct from accesses."
+    }
   ]
 }

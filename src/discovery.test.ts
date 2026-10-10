@@ -42,6 +42,14 @@ describe('raw metrics and discovery',()=>{
     expect(resolvedSort([paper('access','2026-10-10',null,0)],'accesses')).toBe('accesses');
     expect(resolvedSort([], 'accesses')).toBe('newest');
   });
+  it('sorts real raw reading events and hides only known publication links',()=>{
+    const p=[paper('unknown','2026-10-10',100),paper('low','2026-10-10',0,3),paper('high','2026-10-09',0,244)];
+    expect(sortPapers(p,'accesses').map(p=>p.id)).toEqual(['high','low','unknown']);
+    const linked={...paper('linked'),related_doi:'10.1234/published'};
+    expect(filtered([linked,p[0]],defaults,now).map(p=>p.id)).toEqual(['unknown']);
+    expect(filtered([linked,p[0]],{...defaults,hidePublished:false},now)).toHaveLength(2);
+    expect(readFilters(filterQuery({...defaults,hidePublished:false})).hidePublished).toBe(false);
+  });
   it('ties share ranks and missing values stay unranked',()=>{
     const p=[paper('a','2026-10-10',10),paper('b','2026-10-09',10),paper('c','2026-10-10',0),paper('d')];
     expect(ranks(sortPapers(p,'citations'),'citations')).toEqual([1,1,3,null]);
