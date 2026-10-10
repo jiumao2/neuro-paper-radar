@@ -1,5 +1,6 @@
 import copy
 import io
+import gzip
 import json
 import tempfile
 import unittest
@@ -11,7 +12,7 @@ from ingest.http import Client, SourceError, retry_delay
 from ingest.model import (attach_openalex, biorxiv_paper, crossref_paper, doi, exact_date,
                           metric, normalize_work, subtract_months, validate_paper)
 from ingest.readership import ApprovedReadershipQueue, validate_import, validated_imports
-from ingest.refresh import atomic_bytes, collect_biorxiv, make_snapshot, refresh_openalex
+from ingest.refresh import atomic_bytes, collect_biorxiv, make_snapshot, refresh_openalex, run
 
 CONFIG = json.loads((Path(__file__).parents[1] / 'config/sources.json').read_text())
 STAMP = '2026-10-10T12:00:00Z'
@@ -155,6 +156,42 @@ class RefreshTests(unittest.TestCase):
         with self.assertRaises(SourceError): client.get('https://www.nature.com/articles/fixture/metrics')
         def limited(request,timeout): raise urllib.error.HTTPError(request.full_url,429,'Limited',{'Retry-After':'600'},None)
         with self.assertRaises(SourceError): Client(opener=limited,sleeper=lambda _:self.fail('must defer')).get('https://api.openalex.org/works')
+
+    def test_deadline_defers_retry_instead_of_losing_the_checkpoint_window(self):
+        calls=[]
+        def opener(request,timeout):
+            calls.append(request.full_url)
+            raise urllib.error.HTTPError(request.full_url,429,'Limited',{'Retry-After':'12'},None)
+        client=Client(opener=opener,sleeper=lambda _:self.fail('must defer'),clock=lambda:0,max_elapsed=40)
+        with self.assertRaisesRegex(SourceError,'time budget'):
+            client.get('https://api.crossref.org/works')
+        self.assertEqual(len(calls),1)
+
+    def test_deadline_persists_successful_partial_records_and_previous_records(self):
+        now=[0]
+        stamp=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z')
+        day=stamp[:10]
+        existing={**bio(day=day),'doi':'10.64898/existing'}
+        received={**bio(day=day),'doi':'10.64898/received'}
+        def opener(request,timeout):
+            self.assertEqual(now[0],0)
+            now[0]=90
+            return io.BytesIO(json.dumps({'messages':[{'status':'ok','total':2}],'collection':[received]}).encode())
+        client=Client(opener=opener,sleeper=lambda _:self.fail('must defer'),clock=lambda:now[0],max_elapsed=100)
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);(root/'config').mkdir();(root/'data').mkdir()
+            (root/'config/sources.json').write_text(json.dumps(CONFIG))
+            state={'version':1,'preprints':{existing['doi']:{'versions':{'1':existing},'observed_at':stamp}},
+                   'published':{},'openalex':{},'sources':{}}
+            (root/'data/state.json.gz').write_bytes(gzip.compress(json.dumps(state).encode()))
+            snapshot=run('metadata',root,client)
+            self.assertEqual({p['id'] for p in snapshot['papers']},{existing['doi'],received['doi']})
+            report=next(s for s in snapshot['sources'] if s['id']=='biorxiv')
+            self.assertEqual(report['status'],'partial')
+            self.assertIn('time budget',report['errors'][0])
+            saved=json.loads(gzip.decompress((root/'data/state.json.gz').read_bytes()))
+            self.assertIn(received['doi'],saved['preprints'])
+            self.assertEqual(json.loads((root/'public/data/papers.json').read_text())['coverage']['preprints'],2)
 
 
 class ReadershipTests(unittest.TestCase):

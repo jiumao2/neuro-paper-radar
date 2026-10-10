@@ -46,6 +46,8 @@ python -m ingest.refresh --mode backfill
 
 生产快照位于 `public/data/papers.json`，实际覆盖报告采集后保存为 [data/coverage.json](data/coverage.json)，压缩的上次有效来源记录位于 `data/state.json.gz`。无效刷新不覆盖有效快照；API 故障保留旧记录并显示故障状态。浏览器 IndexedDB 也可在后续加载失败时提供上次有效快照。
 
+共享 API 客户端在 30 分钟时间预算后停止发起新请求，计入限流等待与重试。在工作流 40 分钟期限前验证并保存已成功获取的部分记录；未完成任务与陈旧来源会明确标记，并在后续刷新继续处理。
+
 ## 自动化与部署
 
 GitHub Pages 的来源设为 **GitHub Actions**。[验证与部署](.github/workflows/verify-deploy.yml) 执行 Python 测试、数据验证、TypeScript、lint、单元测试、桌面与手机浏览器流程及无障碍检查，然后构建并部署。不会部署空的初始化快照。

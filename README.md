@@ -50,6 +50,8 @@ python -m ingest.refresh --mode auto      # metadata + only-due citation/repair 
 
 The public snapshot is `public/data/papers.json`; the exact coverage report is [data/coverage.json](data/coverage.json) after ingestion. Compressed, source-specific last-good state is `data/state.json.gz`. Invalid refreshes do not replace the public snapshot; API failures retain source records and report failures. Browser IndexedDB retains a last-good snapshot for a failed subsequent fetch.
 
+The shared API client stops new requests after a 30-minute time budget, including rate-limit waits and retries. Successful partial records are validated and persisted before the 40-minute job deadline; deferred work and stale sources remain explicit and resume in later refreshes.
+
 ## Automation and deployment
 
 GitHub Pages uses **GitHub Actions** as its source. [Verify and deploy](.github/workflows/verify-deploy.yml) checks Python tests, data validity, TypeScript, lint, unit tests, browser flows/accessibility on desktop and mobile, then builds and deploys. An empty bootstrap snapshot is not deployed.

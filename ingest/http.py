@@ -34,14 +34,21 @@ def retry_delay(value: str | None, attempt: int, now: datetime | None = None) ->
 
 
 class Client:
-    def __init__(self, opener=None, sleeper=time.sleep, clock=time.monotonic, budget=1600):
+    def __init__(self, opener=None, sleeper=time.sleep, clock=time.monotonic, budget=1600, max_elapsed=1800):
         self.opener = opener or urllib.request.urlopen
         self.sleep = sleeper
         self.clock = clock
         self.budget = budget
+        # Stop new network work before the 40-minute Actions deadline, leaving
+        # time to validate, persist successful partial data, and build the site.
+        self.deadline = self.clock() + max_elapsed
         self.requests = 0
         self.host_requests: dict[str, int] = {}
         self.last: dict[str, float] = {}
+
+    def reserve_request(self, delay=0):
+        if self.clock() + delay + 35 >= self.deadline:
+            raise SourceError("Refresh time budget reached; successful partial data retained and remaining requests deferred")
 
     def get(self, url: str) -> dict:
         parsed = urllib.parse.urlsplit(url)
@@ -63,8 +70,10 @@ class Client:
             # and 7200/day. Every journal and retry shares this host pacing.
             interval = 12.1 if host == "api.plos.org" else 1.0 if host == "api.elifesciences.org" else 0.8
             wait = max(0, interval - (self.clock() - self.last.get(host, -1000)))
+            self.reserve_request(wait)
             if wait:
                 self.sleep(wait)
+            self.reserve_request()
             self.requests += 1
             self.host_requests[host] = self.host_requests.get(host, 0) + 1
             self.last[host] = self.clock()
@@ -91,9 +100,12 @@ class Client:
                 # Defer rather than sleeping less than a server's Retry-After.
                 if delay > 60 or attempt == 2:
                     raise SourceError(f"Official API HTTP {error.code}; retry deferred") from error
+                self.reserve_request(delay)
                 self.sleep(delay)
             except (urllib.error.URLError, TimeoutError, json.JSONDecodeError, ConnectionError) as error:
                 if attempt == 2:
                     raise SourceError(f"Official API request failed ({type(error).__name__})") from error
-                self.sleep(retry_delay(None, attempt))
+                delay = retry_delay(None, attempt)
+                self.reserve_request(delay)
+                self.sleep(delay)
         raise SourceError("Official API request failed")
