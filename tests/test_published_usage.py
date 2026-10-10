@@ -76,6 +76,25 @@ class PublishedUsageTests(unittest.TestCase):
         with self.assertRaises(SourceError):collect_plos(Failing(),PLOS,'2025-10-10','2026-10-10',state,STAMP,{'rows':0,'excluded':{}})
         self.assertEqual(state['published'],before)
 
+    def test_plos_missing_recent_preserves_its_timestamp_with_fresh_total(self):
+        original=plos_paper(row(),PLOS,'2026-10-09T10:00:00Z');state={'published':{original['id']:original}}
+        class API:
+            def get(self,url):return {'response':{'numFound':1,'docs':[{**row(count=20),'counter_total_month':None}]}}
+        collect_plos(API(),PLOS,'2025-10-10','2026-10-10',state,STAMP,{'rows':0,'excluded':{}})
+        m=state['published'][original['id']]['accesses']
+        self.assertEqual(m['value'],20);self.assertEqual(m['observed_at'],STAMP)
+        self.assertEqual(m['recent_30_days']['value'],3)
+        self.assertEqual(m['recent_30_days']['observed_at'],'2026-10-09T10:00:00Z')
+
+    def test_plos_missing_total_does_not_discard_fresh_recent(self):
+        original=plos_paper(row(),PLOS,'2026-10-09T10:00:00Z');state={'published':{original['id']:original}}
+        class API:
+            def get(self,url):return {'response':{'numFound':1,'docs':[{**row(count=None),'counter_total_month':0}]}}
+        collect_plos(API(),PLOS,'2025-10-10','2026-10-10',state,STAMP,{'rows':0,'excluded':{}})
+        m=state['published'][original['id']]['accesses']
+        self.assertEqual(m['value'],14);self.assertEqual(m['observed_at'],'2026-10-09T10:00:00Z')
+        self.assertEqual(m['recent_30_days']['value'],0);self.assertEqual(m['recent_30_days']['observed_at'],STAMP)
+
     def test_global_plos_rate_and_endpoint_row_limits(self):
         now=[0.0];sleeps=[]
         class Response:
@@ -132,6 +151,37 @@ class PublishedUsageTests(unittest.TestCase):
         snapshot=make_snapshot(state,CONFIG,STAMP,'2025-10-10','2026-10-10')
         self.assertEqual(snapshot['coverage']['published'],0)
         self.assertEqual(snapshot['coverage']['excluded']['elife_vor_unverified_or_reviewed_preprint'],1)
+
+    def test_more_than_350_fresh_negative_histories_do_not_starve_vor(self):
+        p=elife_paper();state={'published':{p['id']:p},'openalex':{p['id']:work()},'sources':{},'elife_history':{}}
+        for n in range(1,352):
+            candidate=copy.deepcopy(p);identifier=f'10.7554/elife.{n}';candidate.update(id=identifier,doi=identifier,article_url='https://doi.org/'+identifier)
+            state['published'][identifier]=candidate;state['openalex'][identifier]=work()
+            state['elife_history'][str(n)]={'vor_date':None,'reviewed_preprint_date':'2026-10-09','publication_history':[],'checked_at':STAMP}
+        class API:
+            def get(self,url):
+                if '/108246/' not in url:raise AssertionError('Fresh negative histories must not make calls')
+                return history() if '/versions' in url else {'totalValue':607}
+        refresh_elife(API(),state,CONFIG,STAMP,'2025-10-10','2026-10-10')
+        self.assertEqual(p['accesses']['value'],607)
+        self.assertEqual(state['sources']['elife-api']['deferred'],0)
+
+    def test_persistent_attempt_order_advances_untried_vor_before_due_negatives(self):
+        p=elife_paper();state={'published':{p['id']:p},'openalex':{p['id']:work()},'sources':{},
+                             'elife_history':{},'elife_attempts':{}}
+        for n in range(1,352):
+            candidate=copy.deepcopy(p);identifier=f'10.7554/elife.{n}';candidate.update(id=identifier,doi=identifier)
+            state['published'][identifier]=candidate;state['openalex'][identifier]=work()
+            state['elife_history'][str(n)]={'vor_date':None,'reviewed_preprint_date':'2026-10-09','publication_history':[],'checked_at':'2026-10-09T00:00:00Z'}
+            state['elife_attempts'][str(n)]='2026-10-09T00:00:00Z'
+        calls=[]
+        class API:
+            def get(self,url):
+                calls.append(url)
+                return history() if '/versions' in url else {'totalValue':607}
+        refresh_elife(API(),state,CONFIG,STAMP,'2025-10-10','2026-10-10',limit=1)
+        self.assertIn('/108246/',calls[0]);self.assertEqual(p['accesses']['value'],607)
+        self.assertEqual(state['elife_attempts']['108246'],STAMP)
 
 
 if __name__=='__main__':unittest.main()

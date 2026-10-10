@@ -38,7 +38,7 @@ function paperMarkup(p: Paper, index: number, rank: number | null, by: Sort): st
     <p><strong>${tr('showAllAuthors')}:</strong> ${h(p.authors.join(', ') || '—')}</p>
     <p><strong>${tr('metadataObserved')}:</strong> ${h(fmtDate(p.metadata_observed_at,true))} · ${h(p.date_source)}</p>
     <p><strong>${readLabel}:</strong> ${p.accesses.value === null ? tr('accessMissing') : h(p.accesses.definition)}${p.accesses.observed_at ? ` · ${tr('snapshotRetrieved')}: ${h(fmtDate(p.accesses.observed_at,true))}` : ''}</p>${p.accesses.source_commit ? `<p>${tr('upstreamCollected')}: ${h(fmtDate(p.accesses.upstream_fetched_date))} · ${tr('sourceUpdated')}: ${h(fmtDate(p.accesses.upstream_updated_at,true))} · ${p.accesses.fulltext} full-text + ${p.accesses.pdf} PDF. ${external(p.accesses.source_url!,h(p.accesses.source_commit.slice(0,7)),'text-link')}</p>` : ''}
-    ${p.accesses.recent_30_days ? `<p>${tr('plosRecent')}: ${numberLabel(p.accesses.recent_30_days.value,locale)} · ${tr('plosZero')}</p>`:''}
+    ${p.accesses.recent_30_days ? `<p>${tr('plosRecent')}: ${numberLabel(p.accesses.recent_30_days.value,locale)} · ${tr('observed')}: ${h(fmtDate(p.accesses.recent_30_days.observed_at,true))} · ${tr('plosZero')}</p>`:''}
     ${p.accesses.source_indexed_at ? `<p>${tr('indexTimestamp')}: ${h(fmtDate(p.accesses.source_indexed_at,true))} · ${tr('indexCaveat')}</p>`:''}
     ${p.downloads ? `<p>${tr('elifeDownloads')}: ${numberLabel(p.downloads.value,locale)} · ${h(fmtDate(p.downloads.observed_at,true))}</p>`:''}
     ${p.reviewed_preprint_date ? `<p>${tr('reviewedPreprint')}: ${h(fmtDate(p.reviewed_preprint_date))} · ${tr('vorDate')}: ${h(fmtDate(p.vor_date))}</p>`:''}

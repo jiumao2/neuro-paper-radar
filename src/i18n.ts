@@ -39,7 +39,7 @@ export const strings = {
     publishedReaderDescription:'PLOS: source-defined all-time views (Data Provided by PLOS). eLife: page views across all versions, including reviewed preprints before journal publication; downloads are separate. Source-reported zero can be awaiting an update. These raw events and windows are not fully comparable. The original Nature/JNeurosci sources still have no permitted measurements.',
     reads:'Readership', readerTitle:'bioRxiv readership · partial coverage',
     readerDescription:'Raw full-text views + PDF downloads summed over available monthly rows from the independent biorxiv-top public snapshot. Events, not unique readers; lifetime and version completeness are unverified. Current month is partial. Date filters select publication cohorts.',
-    measuredHere:'measured in this view', upstreamCollected:'Upstream collected through', sourceUpdated:'Source snapshot published', snapshotRetrieved:'Numeric snapshot retrieved',
+    measuredHere:'measured in this view', upstreamCollected:'Upstream collection date', sourceUpdated:'Source snapshot published', snapshotRetrieved:'Numeric snapshot retrieved',
     hidePublished:'Hide preprints with a known published DOI', publicationUnknown:'No link does not confirm that a paper is unpublished.',
   },
   zh: {
@@ -79,8 +79,8 @@ export const strings = {
     reviewedPreprint:'首个 eLife 经评审预印本', vorDate:'首次正式发表版本', publishedReaderTitle:'已发表阅读量 · 覆盖不完整',
     publishedReaderDescription:'PLOS：来源定义的累计总浏览量（Data Provided by PLOS）。eLife：全部版本的页面浏览，含正式发表之前的经评审预印本；下载单独展示。来源报告的零值可能尚待更新。不同事件与时间范围的原始计数不能完全直接比较。原有 Nature 系列与 JNeurosci 仍无允许采集的测量值。',
     reads:'阅读量', readerTitle:'bioRxiv 阅读量 · 覆盖不完整',
-    readerDescription:'按独立公开的 biorxiv-top 数字快照，将可用月份的全文浏览与 PDF 下载原始计数相加。统计阅读事件，并非独立读者；无法保证完整生命周期或版本覆盖。当前月份为部分数据，时间筛选选择发表日期人群。',
-    measuredHere:'本视图有测量值', upstreamCollected:'上游采集截至', sourceUpdated:'来源快照发布于', snapshotRetrieved:'数字快照读取于',
+    readerDescription:'按独立公开的 biorxiv-top 数字快照，将可用月份的全文浏览与 PDF 下载原始计数相加。统计阅读事件，并非独立读者；无法保证完整生命周期或版本覆盖。当前月份为部分数据，时间筛选选择按发表日期划定的论文。',
+    measuredHere:'本视图有测量值', upstreamCollected:'上游采集日期', sourceUpdated:'来源快照发布于', snapshotRetrieved:'数字快照读取于',
     hidePublished:'隐藏已有明确已发表 DOI 的预印本', publicationUnknown:'缺少关联不等于确认尚未发表。',
   },
 } as const;

@@ -80,8 +80,16 @@ def collect_plos(client, journal, start, end, state, stamp, report):
                 continue
             seen_dois.add(paper["id"])
             old = state["published"].get(paper["id"])
-            if old and paper["accesses"]["value"] is None and old["accesses"]["value"] is not None:
-                paper["accesses"] = old["accesses"]
+            if old:
+                current, previous = paper["accesses"],old["accesses"]
+                recent = current["recent_30_days"]
+                old_recent = previous.get("recent_30_days")
+                if recent["value"] is None and old_recent and old_recent["value"] is not None:
+                    recent = old_recent
+                if current["value"] is None and previous["value"] is not None:
+                    current = dict(previous)
+                current["recent_30_days"] = recent
+                paper["accesses"] = current
             state["published"][paper["id"]] = paper
         offset += len(rows)
         if offset >= total:
@@ -139,9 +147,12 @@ def refresh_elife(client,state,config,stamp,start,end,limit=350):
     report = {"id":"elife-api","status":"ok","checked_at":stamp,"last_success":old_report.get("last_success"),
               "requested_start":start,"requested_end":end,"rows":0,"errors":[],"reviewed_preprint_only":0,"deferred":0}
     cache = state.setdefault("elife_history",{})
+    attempts = state.setdefault("elife_attempts",{})
     candidates = [p for p in state["published"].values() if p["journal_id"]=="elife" and
                   attach_openalex(dict(p),state["openalex"].get(p["id"]) if not state["openalex"].get(p["id"],{}).get("_not_found") else None,config)]
-    candidates.sort(key=lambda p:(p["accesses"].get("observed_at") or "",p["id"]))
+    # Persist attempts independently of successful counts. Missing/negative results
+    # cannot jump to the head on every pass and starve untried VOR candidates.
+    candidates.sort(key=lambda p:(attempts.get(elife_id(p["id"]),""),p["id"]))
     processed = 0
     for paper in candidates:
         article_id = elife_id(paper["id"])
@@ -160,14 +171,19 @@ def refresh_elife(client,state,config,stamp,start,end,limit=350):
         observed = paper["accesses"].get("observed_at")
         if observed and datetime.fromisoformat(stamp.replace("Z","+00:00"))-datetime.fromisoformat(observed.replace("Z","+00:00")) < timedelta(hours=6):
             continue
+        history_ttl = timedelta(days=7) if cached and cached["vor_date"] else timedelta(hours=6)
+        history_due = not cached or datetime.fromisoformat(stamp.replace("Z","+00:00"))-datetime.fromisoformat(cached["checked_at"].replace("Z","+00:00")) >= history_ttl
+        if cached and not cached["vor_date"] and not history_due:
+            report["reviewed_preprint_only"] += 1
+            continue  # A fresh negative cache entry consumes no queue work budget.
         if processed >= limit:
             report["deferred"] += 1
             continue
         processed += 1
+        attempts[article_id] = stamp
         try:
             # Verify new/recent histories; weekly revisit older histories through the bounded queue.
-            history_ttl = timedelta(days=7) if cached and cached["vor_date"] else timedelta(hours=6)
-            if not cached or datetime.fromisoformat(stamp.replace("Z","+00:00"))-datetime.fromisoformat(cached["checked_at"].replace("Z","+00:00")) >= history_ttl:
+            if history_due:
                 payload = client.get(f"https://api.elifesciences.org/articles/{article_id}/versions")
                 parsed = elife_history(payload,article_id)
                 cache[article_id] = {**parsed,"checked_at":payload.get("_retrieved_at",stamp)}
