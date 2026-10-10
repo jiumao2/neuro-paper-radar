@@ -30,6 +30,8 @@ test('filters repeat, URL history works, zero differs from missing, links are sa
   await page.getByRole('tab',{name:'Published'}).click();await expect(page.locator('.paper')).toHaveCount(1);
   await page.locator('#journal').selectOption('nature-neuroscience');await expect(page.locator('.paper')).toHaveCount(1);
   await expect(page).toHaveURL(/journal=nature-neuroscience/);
+  await page.getByRole('tab',{name:'Preprints'}).click();await expect(page.locator('#journal')).toHaveValue('all');
+  await page.getByRole('tab',{name:'Published'}).click();await expect(page.locator('#journal')).toHaveValue('nature-neuroscience');
 });
 
 test('locale persists, original titles stay original, abstract expansion is separate',async({page})=>{
