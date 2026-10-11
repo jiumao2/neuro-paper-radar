@@ -4,6 +4,19 @@
 
 The deployed module supports **authorized local HTML, CSV, and JSON numerical imports** for Nature, Nature Neuroscience, Nature Methods, and Nature Communications. **Live Nature collection is disabled, and no authorized production export has been supplied.** An installed parser does not establish a readership connection. The app shows actual measured coverage and falls back transparently to citations/newest when access values are missing.
 
+## Verified launch coverage · 2026-10-11
+
+The production snapshot generated at `2026-10-11T09:54:11Z` contains the following included records for the rolling `2025-10-11`–`2026-10-11` publication window. These are verified metadata counts, not claims of complete journal inventories or connected access data.
+
+| Journal | Included papers | Access measurements | First/last included online date |
+| --- | ---: | ---: | --- |
+| Nature | 222 | 0 | 2025-10-15 / 2026-10-09 |
+| Nature Neuroscience | 395 | 0 | 2025-10-13 / 2026-10-08 |
+| Nature Methods | 28 | 0 | 2025-11-06 / 2026-10-07 |
+| Nature Communications | 736 | 0 | 2025-10-13 / 2026-10-09 |
+
+The four journals total **1,381 papers and zero authorized imported access measurements**. Citation/newest discovery is available. Multidisciplinary journals use recorded OpenAlex neuroscience classification; excluded or unclassified candidates are not counted. Crossref metadata last succeeded around `05:46 UTC`; this later snapshot reused the valid five-hour cache, rather than making redundant requests. Full source timestamps and changing counts remain in the live coverage report. The corpus also retains bioRxiv readership and real eLife/PLOS API measurements.
+
 ## Source boundary and code reference
 
 [ScrapeJournal](https://github.com/danmonyak/ScrapeJournal/tree/0d9b84a214b7104b57fb7363791e4caacafdee9c) is MIT-licensed. Its [article parser](https://github.com/danmonyak/ScrapeJournal/blob/0d9b84a214b7104b57fb7363791e4caacafdee9c/src/sitelogic/NatureArticle.py) identifies the ordinary article-page `.c-article-metrics-bar__wrapper`. That bar is separate from `/metrics`; a restriction on `/metrics` alone does not determine the article parser's eligibility. Its [download script](https://github.com/danmonyak/ScrapeJournal/blob/0d9b84a214b7104b57fb7363791e4caacafdee9c/download.py) uses Nature search and skips existing database DOIs, so its collection/update pipeline is not adopted here.
