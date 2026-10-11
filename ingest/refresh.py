@@ -235,17 +235,30 @@ def make_snapshot(state, config, stamp, start, end):
         else:
             papers.append(p)
     for paper in papers:
-        m = state.get("readership", {}).get(paper["id"]) or (state.get("reference_readership", {}).get(paper["id"]) if paper["kind"] == "preprint" else None)
+        nature = state.get("nature_readership", {}).get(paper["id"])
+        if nature:
+            from .nature_import import validate_measurement
+            validate_measurement(nature,paper["id"],paper["journal_id"])
+        m = nature or state.get("readership", {}).get(paper["id"]) or (state.get("reference_readership", {}).get(paper["id"]) if paper["kind"] == "preprint" else None)
         if m:
             paper["accesses"] = m
             paper["provenance"].append({"source":m["source"],"url":m["permission_url"],"observed_at":m["observed_at"],
-                                        "license":"Public numerical usage facts; upstream code and paper text excluded" if m.get("provider")=="biorxiv-top-numeric" else "Provider-authorized numerical reuse"})
+                                        "license":"Public numerical usage facts; upstream code and paper text excluded" if m.get("provider")=="biorxiv-top-numeric" else m.get("permission_license","Provider-authorized numerical reuse")})
         if paper["kind"]=="published" and paper["accesses"]["value"] is not None:
             measured = paper["accesses"]
             paper["provenance"].append({"source":measured.get("attribution",measured["source"]),"url":measured["source_url"],
-                                        "observed_at":measured["observed_at"],"license":"Public API with required attribution"})
+                                        "observed_at":measured["observed_at"],"license":measured.get("permission_license","Public API with required attribution")})
     papers.sort(key=lambda p: (p["date"], p["id"]), reverse=True)
     by_source = Counter(p["journal_id"] for p in papers)
+    from adapters.nature_article import NATURE_JOURNALS
+    nature_papers = [p for p in papers if p["journal_id"] in NATURE_JOURNALS]
+    nature_measured = [p for p in nature_papers if p["accesses"]["value"] is not None]
+    nature_report = state["sources"].get("nature-offline-import",{})
+    nature_module = {"module":"offline-import","live_fetch_enabled":False,
+                    "status":"partial" if nature_measured else "awaiting-authorized-data",
+                    "measured":len(nature_measured),"total":len(nature_papers),
+                    "approximate":sum(p["accesses"].get("approximate",False) for p in nature_measured),
+                    "last_import":nature_report.get("last_success"),"errors":nature_report.get("errors",[])}
     counts = {"preprints": sum(p["kind"] == "preprint" for p in papers),
               "published": sum(p["kind"] == "published" for p in papers),
               "total": len(papers), "accesses": sum(p["accesses"]["value"] is not None for p in papers),
@@ -264,6 +277,7 @@ def make_snapshot(state, config, stamp, start, end):
             "readership": {"status": "partial" if counts["accesses"] else "unavailable", "measured": counts["accesses"],
                            "reason": "Partial raw readership: available bioRxiv monthly views+PDF facts; PLOS source-defined all-time views; eLife all-version page views. These sources count different events and windows",
                            "source": state["sources"].get("biorxiv-top-numeric"),
+                           "nature": nature_module,
                            "disabled_adapters": config["disabled_adapters"]},
             "schedule": {"metadata_hours": 6, "citations": "daily", "repair": "weekly",
                          "last_citations": state.get("last_citations"), "last_repair": state.get("last_repair")}}

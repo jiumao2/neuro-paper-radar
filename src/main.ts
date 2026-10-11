@@ -3,6 +3,7 @@ import type { Filters, Locale, Paper, Snapshot, Sort } from './types';
 import { dateWindow, doiUrl, escapeHtml as h, filtered, filterQuery, numberLabel, ranks, readFilters, resolvedSort, sortPapers, sorts, windows } from './discovery';
 import { saveLocale, storedLocale, translator } from './i18n';
 import { loadSnapshot } from './data';
+const natureJournals=['nature','nature-neuroscience','nature-methods','nature-communications'];
 
 const root = document.querySelector<HTMLDivElement>('#app')!;
 const localeStorage = () => { try { return window.localStorage; } catch { return null; } };
@@ -31,8 +32,8 @@ function paperMarkup(p: Paper, index: number, rank: number | null, by: Sort): st
   const topics = p.topics.length ? p.topics.slice(0,2).map(topic => `<button class="topic-pill" data-topic="${h(topic.id)}" title="${h(tr('filterTopic') + ': ' + topic.name + ' · OpenAlex ' + topic.score)}">${h(topic.name)}</button>`).join('') : `<span class="topic-pill unknown">${tr('unknown')}</span>`;
   const metrics = (['accesses','citations'] as const).map(key => {
     const m = p[key], measured = m.value !== null;
-    const tip = measured ? `${new Intl.NumberFormat(locale).format(m.value!)} · ${m.source} · ${tr('observed')}: ${fmtDate(m.observed_at,true)}` : tr(key === 'accesses' ? 'accessMissing' : 'citationsMissing');
-    return `<div class="metric ${by === key ? 'active' : ''} ${measured ? '' : 'missing'}"><span class="metric-value" title="${h(tip)}">${numberLabel(m.value,locale)}</span><span class="metric-label">${key==='accesses'?readLabel:tr(key)}</span></div>`;
+    const tip = measured ? `${m.approximate?tr('natureEstimate')+' · '+m.display_value+' · ≈ ':''}${new Intl.NumberFormat(locale).format(m.value!)} · ${m.source} · ${tr('observed')}: ${fmtDate(m.observed_at,true)}` : tr(key === 'accesses' ? 'accessMissing' : 'citationsMissing');
+    return `<div class="metric ${by === key ? 'active' : ''} ${measured ? '' : 'missing'}"><span class="metric-value" title="${h(tip)}">${m.approximate?'≈':''}${numberLabel(m.value,locale)}</span><span class="metric-label">${key==='accesses'?readLabel:tr(key)}</span>${m.approximate?`<span class="metric-precision">${tr('natureEstimate')}</span>`:''}</div>`;
   }).join('');
   const details = `<details id="${detailId}" data-remember="${h(p.id)}-details" ${expanded.has(p.id+'-details') ? 'open' : ''}><summary>${tr('details')}</summary><div class="paper-details">
     <p><strong>${tr('showAllAuthors')}:</strong> ${h(p.authors.join(', ') || '—')}</p>
@@ -41,6 +42,7 @@ function paperMarkup(p: Paper, index: number, rank: number | null, by: Sort): st
     ${p.accesses.recent_30_days ? `<p>${tr('plosRecent')}: ${numberLabel(p.accesses.recent_30_days.value,locale)} · ${tr('observed')}: ${h(fmtDate(p.accesses.recent_30_days.observed_at,true))} · ${tr('plosZero')}</p>`:''}
     ${p.accesses.source_indexed_at ? `<p>${tr('indexTimestamp')}: ${h(fmtDate(p.accesses.source_indexed_at,true))} · ${tr('indexCaveat')}</p>`:''}
     ${p.downloads ? `<p>${tr('elifeDownloads')}: ${numberLabel(p.downloads.value,locale)} · ${h(fmtDate(p.downloads.observed_at,true))}</p>`:''}
+    ${p.accesses.provider==='nature-offline-import'?`<p><strong>${tr('natureOffline')}</strong> · ${tr('natureDisplay')}: ${h(p.accesses.display_value)}${p.accesses.approximate?' · '+tr('natureEstimateNote'):''}</p><p>${tr('natureCaptured')}: ${h(fmtDate(p.accesses.observed_at,true))} · ${tr('natureImported')}: ${h(fmtDate(p.accesses.imported_at,true))}</p><p>${tr('naturePublisherTime')}: ${p.accesses.source_updated_at?h(fmtDate(p.accesses.source_updated_at,true)):tr('natureTimeUnknown')}</p><p>${tr('naturePermission')}: ${external(p.accesses.permission_url!,h(p.accesses.permission_license),'text-link')} · ${h(p.accesses.permission_basis)} · ${tr('natureVerified')}: ${h(fmtDate(p.accesses.permission_verified_at,true))}</p><p>${tr('natureNoGrant')}</p>`:''}
     ${p.reviewed_preprint_date ? `<p>${tr('reviewedPreprint')}: ${h(fmtDate(p.reviewed_preprint_date))} · ${tr('vorDate')}: ${h(fmtDate(p.vor_date))}</p>`:''}
     ${p.publication_history ? `<p>${p.publication_history.map(v=>external(doiUrl(v.doi),h(v.status+' · '+fmtDate(v.date)),'text-link')).join(' · ')}</p>`:''}
     <p><strong>${tr('citations')}:</strong> ${p.citations.value === null ? tr('citationsMissing') : `${h(p.citations.source)} · ${h(fmtDate(p.citations.observed_at,true))}`}. ${tr('methods3')}</p>
@@ -76,6 +78,8 @@ function render(): void {
   const tr = t(), all = snapshot?.papers || [];
   const subset = filtered(all,filters), effective = resolvedSort(subset,filters.sort), ordered = sortPapers(subset,effective), places = ranks(ordered,effective);
   const measuredReads = subset.filter(p=>p.accesses.value!==null).length;
+  const natureView=filters.kind==='published' && (filters.journal==='all'||natureJournals.includes(filters.journal));
+  const natureSubset=subset.filter(p=>natureJournals.includes(p.journal_id)),natureMeasured=natureSubset.filter(p=>p.accesses.value!==null).length;
   const readSource=snapshot?.readership.source;
   const range = dateWindow(filters.window), topicCounts = new Map<string,{name:string;count:number}>();
   for (const p of all.filter(p=>p.kind === filters.kind)) for (const topic of p.topics) {
@@ -96,7 +100,8 @@ function render(): void {
       ${filters.kind==='preprint'?`<div class="publication-status"><label><input id="hide-published" type="checkbox" ${filters.hidePublished?'checked':''}/> ${tr('hidePublished')}</label><span>${tr('publicationUnknown')}</span></div>`:''}
       ${filters.kind==='preprint' && readSource ? `<aside class="coverage-notice reader-available"><div class="notice-icon">${svg('info')}</div><div><strong>${tr('readerTitle')} · ${measuredReads}/${subset.length} ${tr('measuredHere')}</strong><p>${tr('readerDescription')}</p><p>${external(readSource.source_url!,h('biorxiv-top · '+readSource.source_commit?.slice(0,7)),'text-link')} · ${tr('sourceUpdated')}: ${h(fmtDate(readSource.upstream_updated_at,true))}</p></div></aside>` : ''}
       ${filters.kind==='published' && measuredReads>0 ? `<aside class="coverage-notice reader-available published-reader"><div class="notice-icon">${svg('info')}</div><div><strong>${tr('publishedReaderTitle')} · ${measuredReads}/${subset.length} ${tr('measuredHere')}</strong><p>${tr('publishedReaderDescription')}</p></div></aside>`:''}
-      ${(!snapshot || measuredReads === 0) && !(filters.kind==='preprint' && readSource) ? `<aside class="coverage-notice"><div class="notice-icon">${svg('info')}</div><div><strong>${tr('coverageTitle')}</strong><p>${tr('coverageText')}</p></div><div class="notice-actions"><button data-sort="citations">${tr('useCitations')} <span>→</span></button><button data-sort="newest">${tr('useNewest')} <span>→</span></button></div></aside>`:''}
+      ${natureView?`<aside class="coverage-notice nature-reader"><div class="notice-icon">${svg('info')}</div><div><strong>${tr('natureTitle')} · ${natureMeasured}/${natureSubset.length} ${tr('measuredHere')}${!natureMeasured?' · '+tr('natureWaiting'):''}</strong><p>${tr('natureDescription')}</p><p>${external('https://github.com/jiumao2/neuro-paper-radar/blob/main/docs/NATURE_IMPORTS.md',tr('natureDocs'),'text-link')}</p></div>${!measuredReads?`<div class="notice-actions"><button data-sort="citations">${tr('useCitations')} <span>→</span></button><button data-sort="newest">${tr('useNewest')} <span>→</span></button></div>`:''}</aside>`:''}
+      ${(!snapshot || measuredReads === 0) && !natureView && !(filters.kind==='preprint' && readSource) ? `<aside class="coverage-notice"><div class="notice-icon">${svg('info')}</div><div><strong>${tr('coverageTitle')}</strong><p>${tr('coverageText')}</p></div><div class="notice-actions"><button data-sort="citations">${tr('useCitations')} <span>→</span></button><button data-sort="newest">${tr('useNewest')} <span>→</span></button></div></aside>`:''}
       ${cached&&snapshot ? `<div class="error-notice" role="status">${tr('cached')} <button data-retry>${tr('retry')}</button></div>`:''}
       ${partial ? `<div class="partial-notice" role="status">${tr('partial')} · <a href="#methodology">${tr('sources')}</a></div>`:''}
       <div id="results" role="tabpanel" aria-labelledby="${filters.kind==='preprint'?'preprints-tab':'published-tab'}" tabindex="0"><div class="results-heading"><h2 id="results-heading">${ordered.length.toLocaleString(locale)} ${tr(ordered.length===1?'paperSingular':'paper')}</h2><p>${tr('dateRange')}: ${h(fmtDate(range.start))} — ${h(fmtDate(range.end))} <span>UTC</span></p></div><div class="sort-description" role="status">${filters.sort!==effective ? tr('accessFallback') : tr('ordered')} <strong>${effective==='accesses'&&filters.kind==='preprint'?tr('reads'):tr(effective)} ↓</strong>${effective==='citations'?' · OpenAlex':''}${filters.sort==='citations'&&!ordered.some(p=>p.citations.value!==null)?' · '+tr('fallbackNewest'):''}</div>

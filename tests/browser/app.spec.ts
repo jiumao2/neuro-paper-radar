@@ -139,3 +139,62 @@ test('published raw views rank across journals with PLOS attribution and eLife v
   await page.reload();await expect(page.locator('#journal')).toHaveValue('plos-biology');
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
 });
+
+function natureFixture():Snapshot {
+  const papers=[['rounded',1200],['zero',0],['missing',null]].map(([name,count])=>{
+    const identifier='10.1038/s41593-026-fixture-'+name;
+    return {...paper(String(name),'published',7),id:identifier,doi:identifier,article_url:'https://doi.org/'+identifier,
+      accesses:count===null?{value:null,source:null,observed_at:null}:{value:count as number,source:'Nature authorized offline import',observed_at:stamp,
+        provider:'nature-offline-import',aggregation:'cumulative',source_label:'Accesses',definition:'Nature source-defined cumulative Accesses; TEST FIXTURE',
+        approximate:name==='rounded',display_value:name==='rounded'?'1.2k':'0',source_url:'https://www.nature.com/articles/'+identifier.slice(8),
+        imported_at:stamp,source_updated_at:null,input_format:'html' as const,import_fingerprint:'a'.repeat(64),
+        permission_url:'https://example.org/permission/TEST-FIXTURE',permission_basis:'TEST FIXTURE — verified collection and public numerical redistribution rights.',
+        permission_license:'LicenseRef-ExplicitPermission',permission_verified_at:stamp,permission_journal_ids:['nature-neuroscience'],collection_allowed:true,redistribution_allowed:true}};
+  });
+  return {...fixture,papers,coverage:{...fixture.coverage,total:3,preprints:0,published:3,accesses:2,citations:3,by_journal:[{id:'nature-neuroscience',name:'Nature Neuroscience',count:3,candidates:3,oldest:today,newest:today}]},
+    readership:{...fixture.readership,measured:2,nature:{module:'offline-import',live_fetch_enabled:false,status:'partial',measured:2,total:3,approximate:1,last_import:stamp,errors:[]}}};
+}
+
+test('Nature module has an honest unavailable state in both languages without live requests',async({page})=>{
+  const natureRequests:string[]=[];page.on('request',r=>{if(/^https:\/\/(?:www\.)?nature\.com\//.test(r.url()))natureRequests.push(r.url());});
+  await page.goto('./?tab=published&journal=nature-neuroscience');
+  await expect(page.locator('.nature-reader')).toContainText('0/1 measured');
+  await expect(page.locator('.nature-reader')).toContainText('Awaiting authorized data');
+  await expect(page.locator('.nature-reader')).toContainText('Live Nature collection is disabled');
+  await expect(page.locator('.sort-description')).toContainText('Citations');
+  await page.locator('#locale').click();await expect(page.locator('.nature-reader')).toContainText('等待获准的数据');
+  await page.reload();await expect(page.locator('.nature-reader')).toContainText('Nature 在线采集已禁用');
+  expect(natureRequests).toEqual([]);
+});
+
+test('authorized Nature imports show approximate raw ranking, zero, provenance and separate dates',async({page})=>{
+  await page.route('**/data/papers.json',route=>route.fulfill({json:natureFixture()}));
+  await page.goto('./?tab=published&journal=nature-neuroscience');await expect(page.locator('.paper')).toHaveCount(3);
+  await expect(page.locator('.paper').first().locator('.metric-value').first()).toHaveText('≈1.2K');
+  await expect(page.locator('.paper').nth(1).locator('.metric-value').first()).toHaveText('0');
+  await expect(page.locator('.paper').last().locator('.rank')).toHaveAttribute('title','Unranked');
+  await expect(page.locator('.nature-reader')).toContainText('2/3 measured');
+  await page.locator('.paper').first().getByText('Sources & metrics',{exact:true}).click();
+  await expect(page.locator('.paper').first()).toContainText('Original publisher display: 1.2k');
+  await expect(page.locator('.paper').first()).toContainText('Source observation');
+  await expect(page.locator('.paper').first()).toContainText('Imported');
+  await expect(page.locator('.paper').first()).toContainText('Not supplied; no cutoff inferred');
+  await expect(page.locator('.paper-title').first()).toHaveAttribute('href','https://doi.org/10.1038/s41593-026-fixture-rounded');
+  const accessibility=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();expect(accessibility.violations).toEqual([]);
+  await page.locator('#locale').click();await expect(page.locator('.paper').first()).toContainText('出版商舍入的近似值');
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+  await page.locator('.paper').first().screenshot({path:`test-results/${test.info().project.name}-nature-authorized-fixture.png`});
+});
+
+test('malformed Nature provenance and precision retain the last-good cache and can recover',async({page})=>{
+  const good=natureFixture();await page.route('**/data/papers.json',route=>route.fulfill({json:good}));
+  await page.goto('./?tab=published');await expect(page.locator('.paper')).toHaveCount(3);
+  for(const change of [{approximate:false},{permission_basis:undefined},{source_url:'https://www.nature.com/articles/s41593-026-fixture-rounded/metrics'},{collection_allowed:false}]){
+    await page.route('**/data/papers.json',route=>route.fulfill({json:{...good,papers:good.papers.map((p,i)=>i===0?{...p,accesses:{...p.accesses,...change}}:p)}}));
+    await page.reload();await expect(page.locator('.error-notice')).toContainText('last-good snapshot');
+    await expect(page.locator('.paper').first().locator('.metric-value').first()).toHaveText('≈1.2K');
+  }
+  await page.route('**/data/papers.json',route=>route.fulfill({status:503,body:'Unavailable'}));await page.reload();await expect(page.locator('.paper')).toHaveCount(3);
+  await page.route('**/data/papers.json',route=>route.fulfill({json:good}));await page.getByRole('button',{name:'Retry data refresh'}).click();
+  await expect(page.locator('.error-notice')).toHaveCount(0);await expect(page.locator('.paper')).toHaveCount(3);
+});

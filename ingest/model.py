@@ -190,6 +190,9 @@ def validate_paper(p: dict):
             raise ValueError("Measured metric needs source and observation time")
         if key == "accesses" and m["value"] is not None and not all(m.get(k) for k in ("permission_url", "definition", "provider")):
             raise ValueError("Readership needs permission and definition")
+        if key == "accesses" and m.get("provider") == "nature-offline-import":
+            from .nature_import import validate_measurement
+            validate_measurement(m,p["doi"],p["journal_id"])
     if p["kind"] == "preprint":
         v1 = next((v for v in p["versions"] if v["version"] == 1), None)
         if not v1 or v1["date"] != p["date"]:

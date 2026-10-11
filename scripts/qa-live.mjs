@@ -7,6 +7,8 @@ import { defaults, filtered, sortPapers } from '../src/discovery.ts';
 const base = process.env.QA_BASE_URL || 'http://127.0.0.1:4173/neuro-paper-radar/';
 const browser = await chromium.launch({executablePath:process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE||undefined});
 const evidence=[];
+const natureIds=['nature','nature-neuroscience','nature-methods','nature-communications'];
+fs.mkdirSync('test-results',{recursive:true});
 try {
   for (const [name,settings] of [['desktop',{viewport:{width:1440,height:1000}}],['mobile',{...devices['iPhone 13']}]] ) {
     const context=await browser.newContext(settings);const page=await context.newPage();const errors=[];
@@ -59,6 +61,26 @@ try {
       const inView=filtered(data.papers,{...defaults,kind:'published',window:'1y',journal:journal.id});
       assert.equal(await page.locator('.paper').count(),Math.min(40,inView.length));
       const measurements=sortPapers(inView.filter(p=>p.accesses.value!==null),'accesses');
+      if(natureIds.includes(journal.id)){
+        const notice=page.locator('.nature-reader');
+        await expect(notice).toContainText(`${measurements.length}/${inView.length}`);
+        await expect(notice).toContainText('Live Nature collection is disabled');
+        if(!measurements.length){
+          await expect(notice).toContainText('Awaiting authorized data');
+          await expect(page.locator('.sort-description')).toContainText(inView.some(p=>p.citations.value!==null)?'Citations':'Newest');
+        }
+        for(const p of measurements){
+          assert.equal(p.accesses.provider,'nature-offline-import');
+          assert.equal(p.accesses.collection_allowed,true);assert.equal(p.accesses.redistribution_allowed,true);
+        }
+        if(journal.id==='nature-neuroscience'){
+          await page.locator('#locale').click();await expect(notice).toContainText('Nature 在线采集已禁用');
+          await page.reload({waitUntil:'networkidle'});assert.equal(await page.locator('html').getAttribute('lang'),'zh-CN');
+          await expect(page.locator('.nature-reader')).toContainText(`${measurements.length}/${inView.length}`);
+          await page.locator('#locale').click();
+          await page.screenshot({path:`test-results/live-${name}-nature.png`,fullPage:false});
+        }
+      }
       if(measurements.length){
         assert.equal(await page.locator('.paper-title').first().getAttribute('href'),'https://doi.org/'+measurements[0].doi);
         await expect(page.locator('.published-reader')).toBeVisible();
@@ -83,7 +105,7 @@ try {
     assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),true);
     assert.deepEqual(errors,[]);
     fs.mkdirSync('test-results',{recursive:true});await page.screenshot({path:`test-results/live-${name}.png`,fullPage:false});
-    evidence.push({device:name,http:response.status(),build_commit:build?.commit,build_workflow_run:build?.workflow_run,papers:data.coverage.total,preprints:data.coverage.preprints,preprints_without_known_published_doi:preprintCount,measured_unlinked_preprints:measuredPreprints.length,top_read_preprint:measuredPreprints[0]?.doi,published:data.coverage.published,data_generated_at:data.generated_at,journals:journalEvidence,console_errors:errors});
+    evidence.push({device:name,http:response.status(),build_commit:build?.commit,build_workflow_run:build?.workflow_run,papers:data.coverage.total,preprints:data.coverage.preprints,preprints_without_known_published_doi:preprintCount,measured_unlinked_preprints:measuredPreprints.length,top_read_preprint:measuredPreprints[0]?.doi,published:data.coverage.published,data_generated_at:data.generated_at,nature_live_fetch_enabled:false,nature_imported_measurements:data.papers.filter(p=>natureIds.includes(p.journal_id)&&p.accesses.value!==null).length,journals:journalEvidence,console_errors:errors});
     await context.close();
   }
   fs.writeFileSync('test-results/live-qa.json',JSON.stringify({url:base,checked_at:new Date().toISOString(),evidence},null,2)+'\n');

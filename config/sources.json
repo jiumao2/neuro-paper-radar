@@ -84,6 +84,12 @@
   ],
   "neuroscience_field_id": "https://openalex.org/fields/28",
   "topic_min_score": 0.35,
+  "nature_import": {
+    "enabled": true,
+    "live_fetch_enabled": false,
+    "permission_required": true,
+    "journal_ids": ["nature", "nature-neuroscience", "nature-methods", "nature-communications"]
+  },
   "readership_providers": [
     {
       "id": "biorxiv-top-numeric",
@@ -112,7 +118,7 @@
     {
       "id": "nature-accesses",
       "enabled": false,
-      "reason": "No permitted automated feed; metrics paths disallowed and automated journal access restricted."
+      "reason": "Live collection is disabled: Nature robots disallow all pages for ChatGPT-User and its terms restrict automated collection/reuse. Authorized offline numerical imports are supported; no production permissions or exports have been supplied."
     },
     {
       "id": "jneurosci-usage",
