@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-27T18:17:03Z",
+  "generated_at": "2026-10-27T22:18:54Z",
   "coverage": {
     "preprints": 9980,
     "published": 2940,
@@ -246,15 +246,15 @@
     {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-10-27T18:11:15Z",
-      "last_success": "2026-10-27T18:11:15Z",
-      "rows": 5216,
-      "measured_upstream": 5003,
+      "checked_at": "2026-10-27T22:14:04Z",
+      "last_success": "2026-10-27T22:14:04Z",
+      "rows": 5234,
+      "measured_upstream": 5005,
       "requested_start": "2026-05-01",
       "requested_end": "2026-10-27",
-      "upstream_updated_at": "2026-10-27T15:38:00Z",
-      "source_commit": "966590f7083ac3dea8403c8da38a29e08a6667be",
-      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/966590f7083ac3dea8403c8da38a29e08a6667be/usage.json",
+      "upstream_updated_at": "2026-10-27T22:11:00Z",
+      "source_commit": "b04bd44f6269fba3ac52860359df0da2b235cf13",
+      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/b04bd44f6269fba3ac52860359df0da2b235cf13/usage.json",
       "errors": []
     },
     {
@@ -319,15 +319,13 @@
     },
     {
       "id": "elife-api",
-      "status": "partial",
-      "checked_at": "2026-10-27T18:11:15Z",
-      "last_success": "2026-10-27T18:17:01Z",
+      "status": "ok",
+      "checked_at": "2026-10-27T22:14:04Z",
+      "last_success": "2026-10-27T22:18:54Z",
       "requested_start": "2025-10-27",
       "requested_end": "2026-10-27",
-      "rows": 173,
-      "errors": [
-        "eLife cumulative metric missing"
-      ],
+      "rows": 145,
+      "errors": [],
       "reviewed_preprint_only": 0,
       "deferred": 0
     }
@@ -339,15 +337,15 @@
     "source": {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-10-27T18:11:15Z",
-      "last_success": "2026-10-27T18:11:15Z",
-      "rows": 5216,
-      "measured_upstream": 5003,
+      "checked_at": "2026-10-27T22:14:04Z",
+      "last_success": "2026-10-27T22:14:04Z",
+      "rows": 5234,
+      "measured_upstream": 5005,
       "requested_start": "2026-05-01",
       "requested_end": "2026-10-27",
-      "upstream_updated_at": "2026-10-27T15:38:00Z",
-      "source_commit": "966590f7083ac3dea8403c8da38a29e08a6667be",
-      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/966590f7083ac3dea8403c8da38a29e08a6667be/usage.json",
+      "upstream_updated_at": "2026-10-27T22:11:00Z",
+      "source_commit": "b04bd44f6269fba3ac52860359df0da2b235cf13",
+      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/b04bd44f6269fba3ac52860359df0da2b235cf13/usage.json",
       "errors": []
     },
     "nature": {
