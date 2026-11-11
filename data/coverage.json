@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-11T06:46:14Z",
+  "generated_at": "2026-11-11T14:56:08Z",
   "coverage": {
-    "preprints": 10082,
+    "preprints": 10108,
     "published": 2968,
-    "total": 13050,
+    "total": 13076,
     "accesses": 6327,
     "citations": 12860,
     "topics": 12828,
-    "abstracts": 3420,
+    "abstracts": 3429,
     "requested_start": "2025-11-11",
     "requested_end": "2026-11-11",
     "excluded": {
       "preprint_v1_unverified": 1942,
-      "non_neuroscience_or_unknown_topics": 22302
+      "non_neuroscience_or_unknown_topics": 22325
     },
     "oldest": "2025-11-11",
-    "newest": "2026-11-10",
+    "newest": "2026-11-11",
     "by_journal": [
       {
         "id": "nature",
@@ -27,7 +27,7 @@
         ],
         "neuroscience_only": false,
         "count": 234,
-        "candidates": 4410,
+        "candidates": 4420,
         "measured_accesses": 0,
         "oldest": "2025-11-12",
         "newest": "2026-11-04"
@@ -55,7 +55,7 @@
         ],
         "neuroscience_only": false,
         "count": 28,
-        "candidates": 412,
+        "candidates": 413,
         "measured_accesses": 0,
         "oldest": "2025-11-13",
         "newest": "2026-10-07"
@@ -68,7 +68,7 @@
         ],
         "neuroscience_only": false,
         "count": 780,
-        "candidates": 14069,
+        "candidates": 14079,
         "measured_accesses": 0,
         "oldest": "2025-11-11",
         "newest": "2026-11-09"
@@ -95,7 +95,7 @@
         ],
         "neuroscience_only": false,
         "count": 326,
-        "candidates": 1156,
+        "candidates": 1158,
         "measured_accesses": 326,
         "oldest": "2025-11-11",
         "newest": "2026-11-09"
@@ -150,36 +150,36 @@
     {
       "id": "biorxiv",
       "status": "ok",
-      "checked_at": "2026-11-11T06:16:51Z",
-      "last_success": "2026-11-11T06:20:53Z",
+      "checked_at": "2026-11-11T14:30:50Z",
+      "last_success": "2026-11-11T14:35:41Z",
       "last_full_success": "2026-11-09T06:48:41Z",
       "requested_start": "2026-11-03",
       "requested_end": "2026-11-11",
-      "rows": 410,
+      "rows": 440,
       "excluded": {
         "unresolved_v1": 0
       },
       "errors": [],
-      "pages": 14
+      "pages": 15
     },
     {
       "id": "nature",
       "status": "ok",
-      "checked_at": "2026-11-11T06:20:53Z",
-      "last_success": "2026-11-11T06:20:56Z",
+      "checked_at": "2026-11-11T14:35:41Z",
+      "last_success": "2026-11-11T14:35:44Z",
       "last_full_success": "2026-11-09T06:48:47Z",
       "requested_start": "2026-11-03",
       "requested_end": "2026-11-11",
-      "rows": 116,
+      "rows": 126,
       "excluded": {},
       "errors": [],
-      "api_total": 116
+      "api_total": 126
     },
     {
       "id": "nature-neuroscience",
       "status": "ok",
-      "checked_at": "2026-11-11T06:20:56Z",
-      "last_success": "2026-11-11T06:20:58Z",
+      "checked_at": "2026-11-11T14:35:44Z",
+      "last_success": "2026-11-11T14:35:46Z",
       "last_full_success": "2026-11-09T06:48:48Z",
       "requested_start": "2026-11-03",
       "requested_end": "2026-11-11",
@@ -191,34 +191,34 @@
     {
       "id": "nature-methods",
       "status": "ok",
-      "checked_at": "2026-11-11T06:20:58Z",
-      "last_success": "2026-11-11T06:21:02Z",
+      "checked_at": "2026-11-11T14:35:46Z",
+      "last_success": "2026-11-11T14:35:49Z",
       "last_full_success": "2026-11-09T06:48:49Z",
       "requested_start": "2026-11-03",
       "requested_end": "2026-11-11",
-      "rows": 17,
+      "rows": 18,
       "excluded": {},
       "errors": [],
-      "api_total": 17
+      "api_total": 18
     },
     {
       "id": "nature-communications",
       "status": "ok",
-      "checked_at": "2026-11-11T06:21:02Z",
-      "last_success": "2026-11-11T06:21:05Z",
+      "checked_at": "2026-11-11T14:35:49Z",
+      "last_success": "2026-11-11T14:35:51Z",
       "last_full_success": "2026-11-09T06:49:15Z",
       "requested_start": "2026-11-03",
       "requested_end": "2026-11-11",
-      "rows": 184,
+      "rows": 194,
       "excluded": {},
       "errors": [],
-      "api_total": 184
+      "api_total": 194
     },
     {
       "id": "journal-of-neuroscience",
       "status": "ok",
-      "checked_at": "2026-11-11T06:21:05Z",
-      "last_success": "2026-11-11T06:21:08Z",
+      "checked_at": "2026-11-11T14:35:51Z",
+      "last_success": "2026-11-11T14:35:53Z",
       "last_full_success": "2026-11-09T06:49:16Z",
       "requested_start": "2026-11-03",
       "requested_end": "2026-11-11",
@@ -230,23 +230,23 @@
     {
       "id": "openalex",
       "status": "ok",
-      "checked_at": "2026-11-11T06:29:38Z",
-      "last_success": "2026-11-11T06:37:13Z",
+      "checked_at": "2026-11-11T14:44:24Z",
+      "last_success": "2026-11-11T14:45:02Z",
       "last_full_success": null,
       "requested_start": "2025-11-11",
       "requested_end": "2026-11-11",
-      "rows": 36887,
+      "rows": 2,
       "excluded": {},
       "errors": [],
-      "requested_dois": 37294,
-      "alias_lookups": 75,
-      "unmatched": 243,
-      "aliases_deferred": 1714
+      "requested_dois": 49,
+      "alias_lookups": 47,
+      "unmatched": 290,
+      "aliases_deferred": 0
     },
     {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-11-11T06:37:24Z",
+      "checked_at": "2026-11-11T14:45:12Z",
       "last_success": "2026-11-10T07:34:49Z",
       "rows": 4783,
       "measured_upstream": 4608,
@@ -260,22 +260,22 @@
     {
       "id": "elife",
       "status": "ok",
-      "checked_at": "2026-11-11T06:21:08Z",
-      "last_success": "2026-11-11T06:21:10Z",
+      "checked_at": "2026-11-11T14:35:53Z",
+      "last_success": "2026-11-11T14:35:56Z",
       "last_full_success": "2026-11-09T06:49:20Z",
       "requested_start": "2026-11-03",
       "requested_end": "2026-11-11",
-      "rows": 47,
+      "rows": 51,
       "excluded": {},
       "errors": [],
-      "api_total": 47
+      "api_total": 51
     },
     {
       "id": "plos-biology",
       "status": "ok",
-      "checked_at": "2026-11-11T06:21:10Z",
-      "last_success": "2026-11-11T06:21:22Z",
-      "last_full_success": "2026-11-11T06:21:22Z",
+      "checked_at": "2026-11-11T14:35:56Z",
+      "last_success": "2026-11-11T14:36:09Z",
+      "last_full_success": "2026-11-11T14:36:09Z",
       "requested_start": "2025-11-11",
       "requested_end": "2026-11-11",
       "rows": 123,
@@ -288,9 +288,9 @@
     {
       "id": "plos-computational-biology",
       "status": "ok",
-      "checked_at": "2026-11-11T06:21:22Z",
-      "last_success": "2026-11-11T06:21:59Z",
-      "last_full_success": "2026-11-11T06:21:59Z",
+      "checked_at": "2026-11-11T14:36:09Z",
+      "last_success": "2026-11-11T14:36:45Z",
+      "last_full_success": "2026-11-11T14:36:45Z",
       "requested_start": "2025-11-11",
       "requested_end": "2026-11-11",
       "rows": 287,
@@ -303,9 +303,9 @@
     {
       "id": "plos-one",
       "status": "ok",
-      "checked_at": "2026-11-11T06:21:59Z",
-      "last_success": "2026-11-11T06:29:38Z",
-      "last_full_success": "2026-11-11T06:29:38Z",
+      "checked_at": "2026-11-11T14:36:45Z",
+      "last_success": "2026-11-11T14:44:24Z",
+      "last_full_success": "2026-11-11T14:44:24Z",
       "requested_start": "2025-11-11",
       "requested_end": "2026-11-11",
       "rows": 3707,
@@ -317,15 +317,13 @@
     },
     {
       "id": "elife-api",
-      "status": "partial",
-      "checked_at": "2026-11-11T06:37:25Z",
-      "last_success": "2026-11-11T06:46:14Z",
+      "status": "ok",
+      "checked_at": "2026-11-11T14:45:12Z",
+      "last_success": "2026-11-11T14:56:08Z",
       "requested_start": "2025-11-11",
       "requested_end": "2026-11-11",
-      "rows": 265,
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ],
+      "rows": 326,
+      "errors": [],
       "reviewed_preprint_only": 0,
       "deferred": 0
     }
@@ -337,7 +335,7 @@
     "source": {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-11-11T06:37:24Z",
+      "checked_at": "2026-11-11T14:45:12Z",
       "last_success": "2026-11-10T07:34:49Z",
       "rows": 4783,
       "measured_upstream": 4608,
