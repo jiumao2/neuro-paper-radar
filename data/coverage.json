@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-14T18:20:36Z",
+  "generated_at": "2026-11-14T22:24:04Z",
   "coverage": {
     "preprints": 10040,
     "published": 2960,
     "total": 13000,
-    "accesses": 6445,
+    "accesses": 6446,
     "citations": 12795,
     "topics": 12762,
     "abstracts": 3409,
@@ -229,32 +229,32 @@
     },
     {
       "id": "openalex",
-      "status": "failed",
-      "checked_at": "2026-11-14T18:09:46Z",
-      "last_success": "2026-11-14T06:38:16Z",
+      "status": "ok",
+      "checked_at": "2026-11-14T22:23:38Z",
+      "last_success": "2026-11-14T22:23:56Z",
       "last_full_success": null,
       "requested_start": "2025-11-14",
       "requested_end": "2026-11-14",
       "rows": 0,
       "excluded": {},
-      "errors": [
-        "Official API HTTP 429; retry deferred"
-      ],
+      "errors": [],
       "requested_dois": 23,
-      "unmatched": 302
+      "alias_lookups": 23,
+      "unmatched": 302,
+      "aliases_deferred": 0
     },
     {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-11-14T18:09:54Z",
-      "last_success": "2026-11-14T18:09:54Z",
+      "checked_at": "2026-11-14T22:24:04Z",
+      "last_success": "2026-11-14T22:24:04Z",
       "rows": 4919,
-      "measured_upstream": 4731,
+      "measured_upstream": 4732,
       "requested_start": "2026-06-01",
       "requested_end": "2026-11-14",
-      "upstream_updated_at": "2026-11-14T13:29:00Z",
-      "source_commit": "5cb47b2609e4bd0be7a2a05e7431bcdb6a26b105",
-      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/5cb47b2609e4bd0be7a2a05e7431bcdb6a26b105/usage.json",
+      "upstream_updated_at": "2026-11-14T19:56:00Z",
+      "source_commit": "b323c3166494fc32e0d132fe070ac0da10a7d850",
+      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/b323c3166494fc32e0d132fe070ac0da10a7d850/usage.json",
       "errors": []
     },
     {
@@ -318,11 +318,11 @@
     {
       "id": "elife-api",
       "status": "ok",
-      "checked_at": "2026-11-14T18:09:55Z",
+      "checked_at": "2026-11-14T22:24:04Z",
       "last_success": "2026-11-14T18:20:36Z",
       "requested_start": "2025-11-14",
       "requested_end": "2026-11-14",
-      "rows": 321,
+      "rows": 0,
       "errors": [],
       "reviewed_preprint_only": 0,
       "deferred": 0
@@ -330,20 +330,20 @@
   ],
   "readership": {
     "status": "partial",
-    "measured": 6445,
+    "measured": 6446,
     "reason": "Partial raw readership: available bioRxiv monthly views+PDF facts; PLOS source-defined all-time views; eLife all-version page views. These sources count different events and windows",
     "source": {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-11-14T18:09:54Z",
-      "last_success": "2026-11-14T18:09:54Z",
+      "checked_at": "2026-11-14T22:24:04Z",
+      "last_success": "2026-11-14T22:24:04Z",
       "rows": 4919,
-      "measured_upstream": 4731,
+      "measured_upstream": 4732,
       "requested_start": "2026-06-01",
       "requested_end": "2026-11-14",
-      "upstream_updated_at": "2026-11-14T13:29:00Z",
-      "source_commit": "5cb47b2609e4bd0be7a2a05e7431bcdb6a26b105",
-      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/5cb47b2609e4bd0be7a2a05e7431bcdb6a26b105/usage.json",
+      "upstream_updated_at": "2026-11-14T19:56:00Z",
+      "source_commit": "b323c3166494fc32e0d132fe070ac0da10a7d850",
+      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/b323c3166494fc32e0d132fe070ac0da10a7d850/usage.json",
       "errors": []
     },
     "nature": {
