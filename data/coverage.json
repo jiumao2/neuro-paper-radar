@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-24T10:20:36Z",
+  "generated_at": "2026-11-24T22:46:33Z",
   "coverage": {
-    "preprints": 10052,
-    "published": 2925,
-    "total": 12977,
-    "accesses": 6674,
-    "citations": 12815,
-    "topics": 12783,
-    "abstracts": 3425,
+    "preprints": 10060,
+    "published": 2933,
+    "total": 12993,
+    "accesses": 6697,
+    "citations": 12818,
+    "topics": 12786,
+    "abstracts": 3426,
     "requested_start": "2025-11-24",
     "requested_end": "2026-11-24",
     "excluded": {
       "preprint_v1_unverified": 2072,
-      "non_neuroscience_or_unknown_topics": 22157
+      "non_neuroscience_or_unknown_topics": 22207
     },
     "oldest": "2025-11-24",
-    "newest": "2026-11-23",
+    "newest": "2026-11-24",
     "by_journal": [
       {
         "id": "nature",
@@ -27,7 +27,7 @@
         ],
         "neuroscience_only": false,
         "count": 233,
-        "candidates": 4424,
+        "candidates": 4439,
         "measured_accesses": 0,
         "oldest": "2025-11-26",
         "newest": "2026-11-18"
@@ -40,11 +40,11 @@
           "1546-1726"
         ],
         "neuroscience_only": true,
-        "count": 390,
-        "candidates": 390,
+        "count": 391,
+        "candidates": 391,
         "measured_accesses": 0,
         "oldest": "2025-11-24",
-        "newest": "2026-11-23"
+        "newest": "2026-11-24"
       },
       {
         "id": "nature-methods",
@@ -55,7 +55,7 @@
         ],
         "neuroscience_only": false,
         "count": 27,
-        "candidates": 410,
+        "candidates": 412,
         "measured_accesses": 0,
         "oldest": "2025-12-04",
         "newest": "2026-10-07"
@@ -68,7 +68,7 @@
         ],
         "neuroscience_only": false,
         "count": 765,
-        "candidates": 13907,
+        "candidates": 13929,
         "measured_accesses": 0,
         "oldest": "2025-11-24",
         "newest": "2026-11-22"
@@ -81,11 +81,11 @@
           "1529-2401"
         ],
         "neuroscience_only": true,
-        "count": 706,
-        "candidates": 706,
+        "count": 710,
+        "candidates": 710,
         "measured_accesses": 0,
         "oldest": "2025-11-24",
-        "newest": "2026-11-18"
+        "newest": "2026-11-24"
       },
       {
         "id": "elife",
@@ -94,11 +94,11 @@
           "2050-084X"
         ],
         "neuroscience_only": false,
-        "count": 322,
-        "candidates": 1139,
-        "measured_accesses": 322,
+        "count": 325,
+        "candidates": 1143,
+        "measured_accesses": 325,
         "oldest": "2025-11-24",
-        "newest": "2026-11-20"
+        "newest": "2026-11-24"
       },
       {
         "id": "plos-biology",
@@ -125,7 +125,7 @@
         "neuroscience_only": false,
         "metadata_api": "plos",
         "count": 129,
-        "candidates": 287,
+        "candidates": 288,
         "measured_accesses": 129,
         "oldest": "2025-11-25",
         "newest": "2026-11-20"
@@ -139,7 +139,7 @@
         "neuroscience_only": false,
         "metadata_api": "plos",
         "count": 264,
-        "candidates": 3697,
+        "candidates": 3706,
         "measured_accesses": 264,
         "oldest": "2025-11-24",
         "newest": "2026-11-20"
@@ -150,12 +150,12 @@
     {
       "id": "biorxiv",
       "status": "ok",
-      "checked_at": "2026-11-24T09:53:14Z",
-      "last_success": "2026-11-24T09:53:51Z",
+      "checked_at": "2026-11-24T22:25:23Z",
+      "last_success": "2026-11-24T22:25:53Z",
       "last_full_success": "2026-11-24T00:15:57Z",
       "requested_start": "2026-11-16",
       "requested_end": "2026-11-24",
-      "rows": 364,
+      "rows": 376,
       "excluded": {
         "unresolved_v1": 2
       },
@@ -165,61 +165,22 @@
     {
       "id": "nature",
       "status": "ok",
-      "checked_at": "2026-11-24T09:53:51Z",
-      "last_success": "2026-11-24T09:53:52Z",
+      "checked_at": "2026-11-24T22:25:53Z",
+      "last_success": "2026-11-24T22:25:54Z",
       "last_full_success": "2026-11-24T00:16:01Z",
       "requested_start": "2026-11-16",
       "requested_end": "2026-11-24",
-      "rows": 118,
+      "rows": 133,
       "excluded": {},
       "errors": [],
-      "api_total": 118
+      "api_total": 133
     },
     {
       "id": "nature-neuroscience",
       "status": "ok",
-      "checked_at": "2026-11-24T09:53:52Z",
-      "last_success": "2026-11-24T09:53:52Z",
+      "checked_at": "2026-11-24T22:25:54Z",
+      "last_success": "2026-11-24T22:25:55Z",
       "last_full_success": "2026-11-24T00:16:02Z",
-      "requested_start": "2026-11-16",
-      "requested_end": "2026-11-24",
-      "rows": 7,
-      "excluded": {},
-      "errors": [],
-      "api_total": 7
-    },
-    {
-      "id": "nature-methods",
-      "status": "ok",
-      "checked_at": "2026-11-24T09:53:52Z",
-      "last_success": "2026-11-24T09:53:53Z",
-      "last_full_success": "2026-11-24T00:16:03Z",
-      "requested_start": "2026-11-16",
-      "requested_end": "2026-11-24",
-      "rows": 13,
-      "excluded": {},
-      "errors": [],
-      "api_total": 13
-    },
-    {
-      "id": "nature-communications",
-      "status": "ok",
-      "checked_at": "2026-11-24T09:53:53Z",
-      "last_success": "2026-11-24T09:53:55Z",
-      "last_full_success": "2026-11-24T00:16:14Z",
-      "requested_start": "2026-11-16",
-      "requested_end": "2026-11-24",
-      "rows": 226,
-      "excluded": {},
-      "errors": [],
-      "api_total": 226
-    },
-    {
-      "id": "journal-of-neuroscience",
-      "status": "ok",
-      "checked_at": "2026-11-24T09:53:55Z",
-      "last_success": "2026-11-24T09:53:56Z",
-      "last_full_success": "2026-11-24T00:16:15Z",
       "requested_start": "2026-11-16",
       "requested_end": "2026-11-24",
       "rows": 8,
@@ -228,54 +189,93 @@
       "api_total": 8
     },
     {
+      "id": "nature-methods",
+      "status": "ok",
+      "checked_at": "2026-11-24T22:25:55Z",
+      "last_success": "2026-11-24T22:25:56Z",
+      "last_full_success": "2026-11-24T00:16:03Z",
+      "requested_start": "2026-11-16",
+      "requested_end": "2026-11-24",
+      "rows": 15,
+      "excluded": {},
+      "errors": [],
+      "api_total": 15
+    },
+    {
+      "id": "nature-communications",
+      "status": "ok",
+      "checked_at": "2026-11-24T22:25:56Z",
+      "last_success": "2026-11-24T22:25:57Z",
+      "last_full_success": "2026-11-24T00:16:14Z",
+      "requested_start": "2026-11-16",
+      "requested_end": "2026-11-24",
+      "rows": 248,
+      "excluded": {},
+      "errors": [],
+      "api_total": 248
+    },
+    {
+      "id": "journal-of-neuroscience",
+      "status": "ok",
+      "checked_at": "2026-11-24T22:25:57Z",
+      "last_success": "2026-11-24T22:25:57Z",
+      "last_full_success": "2026-11-24T00:16:15Z",
+      "requested_start": "2026-11-16",
+      "requested_end": "2026-11-24",
+      "rows": 12,
+      "excluded": {},
+      "errors": [],
+      "api_total": 12
+    },
+    {
       "id": "openalex",
       "status": "ok",
-      "checked_at": "2026-11-24T10:02:13Z",
-      "last_success": "2026-11-24T10:09:45Z",
+      "checked_at": "2026-11-24T22:34:27Z",
+      "last_success": "2026-11-24T22:35:20Z",
       "last_full_success": null,
       "requested_start": "2025-11-24",
       "requested_end": "2026-11-24",
-      "rows": 36408,
+      "rows": 4,
       "excluded": {},
       "errors": [],
-      "requested_dois": 36906,
-      "alias_lookups": 75,
-      "unmatched": 245,
-      "aliases_deferred": 1350
+      "requested_dois": 66,
+      "alias_lookups": 66,
+      "unmatched": 307,
+      "aliases_deferred": 0
     },
     {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-11-24T10:09:51Z",
-      "last_success": "2026-11-24T10:09:51Z",
+      "checked_at": "2026-11-24T22:35:31Z",
+      "last_success": "2026-11-24T22:35:31Z",
       "rows": 5166,
-      "measured_upstream": 4931,
+      "measured_upstream": 4972,
       "requested_start": "2026-06-01",
       "requested_end": "2026-11-24",
-      "upstream_updated_at": "2026-11-24T02:28:00Z",
-      "source_commit": "ca6900116027af3ea186748123263eeb6812deef",
-      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/ca6900116027af3ea186748123263eeb6812deef/usage.json",
+      "upstream_updated_at": "2026-11-24T13:37:00Z",
+      "source_commit": "61f345ab5af1368b173d8e15c172a7edb9a5da08",
+      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/61f345ab5af1368b173d8e15c172a7edb9a5da08/usage.json",
       "errors": []
     },
     {
       "id": "elife",
       "status": "ok",
-      "checked_at": "2026-11-24T09:53:56Z",
-      "last_success": "2026-11-24T09:53:57Z",
+      "checked_at": "2026-11-24T22:25:57Z",
+      "last_success": "2026-11-24T22:25:59Z",
       "last_full_success": "2026-11-24T00:16:17Z",
       "requested_start": "2026-11-16",
       "requested_end": "2026-11-24",
-      "rows": 54,
+      "rows": 62,
       "excluded": {},
       "errors": [],
-      "api_total": 54
+      "api_total": 62
     },
     {
       "id": "plos-biology",
       "status": "ok",
-      "checked_at": "2026-11-24T09:53:57Z",
-      "last_success": "2026-11-24T09:54:09Z",
-      "last_full_success": "2026-11-24T09:54:09Z",
+      "checked_at": "2026-11-24T22:25:59Z",
+      "last_success": "2026-11-24T22:26:11Z",
+      "last_full_success": "2026-11-24T22:26:11Z",
       "requested_start": "2025-11-24",
       "requested_end": "2026-11-24",
       "rows": 121,
@@ -288,41 +288,41 @@
     {
       "id": "plos-computational-biology",
       "status": "ok",
-      "checked_at": "2026-11-24T09:54:09Z",
-      "last_success": "2026-11-24T09:54:46Z",
-      "last_full_success": "2026-11-24T09:54:46Z",
+      "checked_at": "2026-11-24T22:26:11Z",
+      "last_success": "2026-11-24T22:26:48Z",
+      "last_full_success": "2026-11-24T22:26:48Z",
       "requested_start": "2025-11-24",
       "requested_end": "2026-11-24",
-      "rows": 287,
+      "rows": 288,
       "excluded": {},
       "errors": [],
       "pages": 3,
-      "unique_dois": 287,
+      "unique_dois": 288,
       "source_schema_version": 2
     },
     {
       "id": "plos-one",
       "status": "ok",
-      "checked_at": "2026-11-24T09:54:46Z",
-      "last_success": "2026-11-24T10:02:13Z",
-      "last_full_success": "2026-11-24T10:02:13Z",
+      "checked_at": "2026-11-24T22:26:48Z",
+      "last_success": "2026-11-24T22:34:27Z",
+      "last_full_success": "2026-11-24T22:34:27Z",
       "requested_start": "2025-11-24",
       "requested_end": "2026-11-24",
-      "rows": 3697,
+      "rows": 3706,
       "excluded": {},
       "errors": [],
-      "pages": 37,
-      "unique_dois": 3697,
+      "pages": 38,
+      "unique_dois": 3706,
       "source_schema_version": 2
     },
     {
       "id": "elife-api",
       "status": "ok",
-      "checked_at": "2026-11-24T10:09:51Z",
-      "last_success": "2026-11-24T10:20:36Z",
+      "checked_at": "2026-11-24T22:35:31Z",
+      "last_success": "2026-11-24T22:46:33Z",
       "requested_start": "2025-11-24",
       "requested_end": "2026-11-24",
-      "rows": 322,
+      "rows": 325,
       "errors": [],
       "reviewed_preprint_only": 0,
       "deferred": 0
@@ -330,20 +330,20 @@
   ],
   "readership": {
     "status": "partial",
-    "measured": 6674,
+    "measured": 6697,
     "reason": "Partial raw readership: available bioRxiv monthly views+PDF facts; PLOS source-defined all-time views; eLife all-version page views. These sources count different events and windows",
     "source": {
       "id": "biorxiv-top-numeric",
       "status": "ok",
-      "checked_at": "2026-11-24T10:09:51Z",
-      "last_success": "2026-11-24T10:09:51Z",
+      "checked_at": "2026-11-24T22:35:31Z",
+      "last_success": "2026-11-24T22:35:31Z",
       "rows": 5166,
-      "measured_upstream": 4931,
+      "measured_upstream": 4972,
       "requested_start": "2026-06-01",
       "requested_end": "2026-11-24",
-      "upstream_updated_at": "2026-11-24T02:28:00Z",
-      "source_commit": "ca6900116027af3ea186748123263eeb6812deef",
-      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/ca6900116027af3ea186748123263eeb6812deef/usage.json",
+      "upstream_updated_at": "2026-11-24T13:37:00Z",
+      "source_commit": "61f345ab5af1368b173d8e15c172a7edb9a5da08",
+      "source_url": "https://github.com/RobertoDF/biorxiv-top/blob/61f345ab5af1368b173d8e15c172a7edb9a5da08/usage.json",
       "errors": []
     },
     "nature": {
@@ -351,7 +351,7 @@
       "live_fetch_enabled": false,
       "status": "awaiting-authorized-data",
       "measured": 0,
-      "total": 1415,
+      "total": 1416,
       "approximate": 0,
       "last_import": null,
       "errors": []
@@ -384,6 +384,6 @@
     "citations": "daily",
     "repair": "weekly",
     "last_citations": "2026-11-24T10:09:45Z",
-    "last_repair": "2026-11-17T08:10:59Z"
+    "last_repair": "2026-11-24T22:35:20Z"
   }
 }
