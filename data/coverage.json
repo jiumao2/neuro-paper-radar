@@ -1,22 +1,22 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-23T08:06:13Z",
+  "generated_at": "2026-11-24T00:22:07Z",
   "coverage": {
-    "preprints": 10019,
-    "published": 2920,
-    "total": 12939,
+    "preprints": 10054,
+    "published": 2922,
+    "total": 12976,
     "accesses": 6629,
     "citations": 12808,
     "topics": 12775,
-    "abstracts": 3411,
+    "abstracts": 3426,
     "requested_start": "2025-11-23",
     "requested_end": "2026-11-23",
     "excluded": {
-      "preprint_v1_unverified": 2116,
-      "non_neuroscience_or_unknown_topics": 22115
+      "preprint_v1_unverified": 2093,
+      "non_neuroscience_or_unknown_topics": 22175
     },
     "oldest": "2025-11-23",
-    "newest": "2026-11-21",
+    "newest": "2026-11-23",
     "by_journal": [
       {
         "id": "nature",
@@ -27,7 +27,7 @@
         ],
         "neuroscience_only": false,
         "count": 232,
-        "candidates": 4406,
+        "candidates": 4420,
         "measured_accesses": 0,
         "oldest": "2025-11-26",
         "newest": "2026-11-18"
@@ -40,11 +40,11 @@
           "1546-1726"
         ],
         "neuroscience_only": true,
-        "count": 388,
-        "candidates": 388,
+        "count": 390,
+        "candidates": 390,
         "measured_accesses": 0,
         "oldest": "2025-11-24",
-        "newest": "2026-11-18"
+        "newest": "2026-11-23"
       },
       {
         "id": "nature-methods",
@@ -55,7 +55,7 @@
         ],
         "neuroscience_only": false,
         "count": 26,
-        "candidates": 408,
+        "candidates": 410,
         "measured_accesses": 0,
         "oldest": "2025-12-04",
         "newest": "2026-10-07"
@@ -68,7 +68,7 @@
         ],
         "neuroscience_only": false,
         "count": 764,
-        "candidates": 13902,
+        "candidates": 13927,
         "measured_accesses": 0,
         "oldest": "2025-11-23",
         "newest": "2026-11-19"
@@ -95,7 +95,7 @@
         ],
         "neuroscience_only": false,
         "count": 322,
-        "candidates": 1134,
+        "candidates": 1138,
         "measured_accesses": 322,
         "oldest": "2025-11-24",
         "newest": "2026-11-20"
@@ -125,7 +125,7 @@
         "neuroscience_only": false,
         "metadata_api": "plos",
         "count": 129,
-        "candidates": 286,
+        "candidates": 287,
         "measured_accesses": 129,
         "oldest": "2025-11-25",
         "newest": "2026-11-20"
@@ -139,7 +139,7 @@
         "neuroscience_only": false,
         "metadata_api": "plos",
         "count": 264,
-        "candidates": 3683,
+        "candidates": 3697,
         "measured_accesses": 264,
         "oldest": "2025-11-24",
         "newest": "2026-11-20"
@@ -149,108 +149,104 @@
   "sources": [
     {
       "id": "biorxiv",
-      "status": "partial",
-      "checked_at": "2026-11-23T07:36:26Z",
-      "last_success": "2026-11-22T19:39:27Z",
-      "last_full_success": "2026-11-16T06:42:34Z",
+      "status": "ok",
+      "checked_at": "2026-11-23T23:52:35Z",
+      "last_success": "2026-11-24T00:15:57Z",
+      "last_full_success": "2026-11-24T00:15:57Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 5940,
-      "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "rows": 14901,
+      "excluded": {
+        "unresolved_v1": 1798
+      },
+      "errors": [],
+      "pages": 497
     },
     {
       "id": "nature",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
-      "last_success": "2026-11-22T19:39:28Z",
-      "last_full_success": "2026-11-16T06:42:46Z",
+      "status": "ok",
+      "checked_at": "2026-11-24T00:15:57Z",
+      "last_success": "2026-11-24T00:16:01Z",
+      "last_full_success": "2026-11-24T00:16:01Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 4420,
       "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "errors": [],
+      "api_total": 4420
     },
     {
       "id": "nature-neuroscience",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
-      "last_success": "2026-11-22T19:39:28Z",
-      "last_full_success": "2026-11-16T06:42:48Z",
+      "status": "ok",
+      "checked_at": "2026-11-24T00:16:01Z",
+      "last_success": "2026-11-24T00:16:02Z",
+      "last_full_success": "2026-11-24T00:16:02Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 390,
       "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "errors": [],
+      "api_total": 390
     },
     {
       "id": "nature-methods",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
-      "last_success": "2026-11-22T19:39:29Z",
-      "last_full_success": "2026-11-16T06:42:50Z",
+      "status": "ok",
+      "checked_at": "2026-11-24T00:16:02Z",
+      "last_success": "2026-11-24T00:16:03Z",
+      "last_full_success": "2026-11-24T00:16:03Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 410,
       "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "errors": [],
+      "api_total": 410
     },
     {
       "id": "nature-communications",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
-      "last_success": "2026-11-22T19:39:32Z",
-      "last_full_success": "2026-11-16T06:43:21Z",
+      "status": "ok",
+      "checked_at": "2026-11-24T00:16:03Z",
+      "last_success": "2026-11-24T00:16:14Z",
+      "last_full_success": "2026-11-24T00:16:14Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 13927,
       "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "errors": [],
+      "api_total": 13927
     },
     {
       "id": "journal-of-neuroscience",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
-      "last_success": "2026-11-22T19:39:32Z",
-      "last_full_success": "2026-11-16T06:43:23Z",
+      "status": "ok",
+      "checked_at": "2026-11-24T00:16:14Z",
+      "last_success": "2026-11-24T00:16:15Z",
+      "last_full_success": "2026-11-24T00:16:15Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 706,
       "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "errors": [],
+      "api_total": 706
     },
     {
       "id": "openalex",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
+      "status": "partial",
+      "checked_at": "2026-11-24T00:21:56Z",
       "last_success": "2026-11-22T19:47:57Z",
       "last_full_success": null,
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 300,
       "excluded": {},
       "errors": [
         "Refresh time budget reached; successful partial data retained and remaining requests deferred"
       ],
-      "requested_dois": 37170,
-      "unmatched": 281
+      "requested_dois": 37244,
+      "unmatched": 359
     },
     {
       "id": "biorxiv-top-numeric",
       "status": "failed",
-      "checked_at": "2026-11-23T08:06:13Z",
+      "checked_at": "2026-11-24T00:22:07Z",
       "last_success": "2026-11-22T19:48:07Z",
       "rows": 5131,
       "measured_upstream": 4870,
@@ -265,55 +261,56 @@
     },
     {
       "id": "elife",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
-      "last_success": "2026-11-22T19:39:33Z",
-      "last_full_success": "2026-11-16T06:43:28Z",
+      "status": "ok",
+      "checked_at": "2026-11-24T00:16:15Z",
+      "last_success": "2026-11-24T00:16:17Z",
+      "last_full_success": "2026-11-24T00:16:17Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 2142,
       "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "errors": [],
+      "api_total": 2142
     },
     {
       "id": "plos-biology",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
-      "last_success": "2026-11-22T19:39:46Z",
-      "last_full_success": "2026-11-22T19:39:46Z",
+      "status": "ok",
+      "checked_at": "2026-11-24T00:16:17Z",
+      "last_success": "2026-11-24T00:16:30Z",
+      "last_full_success": "2026-11-24T00:16:30Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 121,
       "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "errors": [],
+      "pages": 2,
+      "unique_dois": 121,
+      "source_schema_version": 2
     },
     {
       "id": "plos-computational-biology",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
-      "last_success": "2026-11-22T19:40:22Z",
-      "last_full_success": "2026-11-22T19:40:22Z",
+      "status": "ok",
+      "checked_at": "2026-11-24T00:16:30Z",
+      "last_success": "2026-11-24T00:17:06Z",
+      "last_full_success": "2026-11-24T00:17:06Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 287,
       "excluded": {},
-      "errors": [
-        "Refresh time budget reached; successful partial data retained and remaining requests deferred"
-      ]
+      "errors": [],
+      "pages": 3,
+      "unique_dois": 287,
+      "source_schema_version": 2
     },
     {
       "id": "plos-one",
-      "status": "failed",
-      "checked_at": "2026-11-23T08:06:03Z",
+      "status": "partial",
+      "checked_at": "2026-11-24T00:17:06Z",
       "last_success": "2026-11-22T19:47:49Z",
       "last_full_success": "2026-11-22T19:47:49Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
-      "rows": 0,
+      "rows": 2400,
       "excluded": {},
       "errors": [
         "Refresh time budget reached; successful partial data retained and remaining requests deferred"
@@ -322,7 +319,7 @@
     {
       "id": "elife-api",
       "status": "partial",
-      "checked_at": "2026-11-23T08:06:13Z",
+      "checked_at": "2026-11-24T00:22:07Z",
       "last_success": "2026-11-22T19:59:37Z",
       "requested_start": "2025-11-23",
       "requested_end": "2026-11-23",
@@ -341,7 +338,7 @@
     "source": {
       "id": "biorxiv-top-numeric",
       "status": "failed",
-      "checked_at": "2026-11-23T08:06:13Z",
+      "checked_at": "2026-11-24T00:22:07Z",
       "last_success": "2026-11-22T19:48:07Z",
       "rows": 5131,
       "measured_upstream": 4870,
@@ -359,7 +356,7 @@
       "live_fetch_enabled": false,
       "status": "awaiting-authorized-data",
       "measured": 0,
-      "total": 1410,
+      "total": 1412,
       "approximate": 0,
       "last_import": null,
       "errors": []
